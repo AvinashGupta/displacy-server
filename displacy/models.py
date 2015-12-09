@@ -1,17 +1,25 @@
+from collections import defaultdict
+
+
 class Model(object):
+    def __init__(self, doc, states, actions, client_state):
+        word_edits = client_state.get('words', {}),
+        tag_edits = client_state.get('tags', {})
+        words = [Word(w, w.i in word_edits, w.i in tag_edits) for w in doc]
+
+        self.parse = Parse(words, states)
+        self.actions = actions
+        self.client_state = client_state
+
     def to_json(self):
         return {name: _as_json(value) for name, value in self.__dict__.items()
                 if not name.startswith('_')}
 
 
 class Parse(Model):
-    def __init__(self, doc, states, actions, client_state):
-        word_edits = client_state.get('words', {})
-        tag_edits = client_state.get('tags', {})
-        self.actions = actions
-        self.words = [Word(w, w.i in word_edits, w.i in tag_edits) for w in doc]
+    def __init__(self, words, states):
+        self.words = words
         self.states = states
-        self.client_state = client_state
 
 
 class Word(Model):
@@ -26,8 +34,6 @@ class Word(Model):
 
 class State(Model):
     def __init__(self, heads, deps, stack, queue):
-        Model.__init__(self)
-
         queue = [w for w in queue if w >= 0]
         self.focus = min(queue) if queue else -1
         self.is_final = bool(not stack and not queue)
