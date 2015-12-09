@@ -153,9 +153,36 @@ def handle_manual(json_data):
 
     with NLU.parser.step_through(tokens) as state:
         for action in history:
+            prev_deps, prev_heads, prev_stack = get_deps_heads_stack(state)
+            prev_deps = list(state.deps)
+            prev_heads = list(state.heads)
+            prev_stack = list(state.stack)
+            prev_queue = list(state.queue)
             state.transition(action)
 
+    diffs = _diff_state(prev_deps, prev_heads, prev_stack, prev_queue,
+                        state.deps, state.heads, state.stack, state.queue)
+    
     NLU.entity(tokens)
     actions = get_actions(state.stcls, len(history))
-    return Parse(tokens, [State(state.heads, state.deps, state.stack, state.queue)],
-                 actions, client_state)
+    return models.Model(tokens, [models.State(state.heads, state.deps,
+                                 state.stack, state.queue, diffs)],
+                        actions, client_state)
+
+
+def _diff_state(prev_deps, prev_heads, prev_stack, prev_queue,
+                     deps,      heads,      stack,      queue):
+    diff = {}
+    for i, head in enumerate(heads):
+        if deps[i] != '' and prev_deps[i] == '':
+            diff[i] = {'dep': deps[i], 'head': head}
+    diff_stack = {}
+    for stack_word in stack:
+        if stack_word not in prev_stack:
+            diff.setdefault(stack_word, {})
+            diff[stack_word]['stack_add'] = True
+    for stack_word in prev_stack:
+        if stack_word not in stack:
+            diff.setdefault(stack_word, {})
+            diff[stack_word]['stack_del'] = True
+    return diff
