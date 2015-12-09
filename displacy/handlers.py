@@ -6,7 +6,18 @@ from spacy.attrs import ORTH, SPACY, TAG, POS, ENT_IOB, ENT_TYPE
 from spacy.parts_of_speech import UNIV_POS_NAMES
 
 
+from . import models
+
+
+try:
+  unicode
+except NameError:
+  unicode = str
+
+
+print("Loading models...")
 NLU = spacy.en.English()
+print("Ready.")
 
 
 def merge_entities(doc):
@@ -99,9 +110,8 @@ def handle_parse(json_data):
     merge_entities(tokens)
     merge_nps(tokens)
     merge_punct(tokens)
-    state = State([w.head.i for w in doc], [w.dep_ for w in doc], [], [])
-    actions = get_actions(state, len(tokens) * 2)
-    return Parse(tokens, [state], actions, client_state)
+    state = models.State([w.head.i for w in tokens], [w.dep_ for w in tokens], [], [])
+    return models.Model(tokens, [state], [], client_state)
 
 
 def handle_steps(json_data):
@@ -118,12 +128,12 @@ def handle_steps(json_data):
         while not state.is_final:
             action = state.predict()
             state.transition(action)
-            states.append(State(state.heads, state.deps, state.stack, state.queue))
+            states.append(models.State(state.heads, state.deps, state.stack, state.queue))
     actions = [
         {'label': 'prev', 'key': 'P', 'binding': 37, 'is_valid': True},
         {'label': 'next', 'key': 'N', 'binding': 39, 'is_valid': True}
     ]
-    return Parse(state.doc, states, actions, client_state)
+    return models.Model(state.doc, states, actions, client_state)
 
 
 def handle_manual(json_data):
