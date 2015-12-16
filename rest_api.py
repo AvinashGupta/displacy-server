@@ -7,7 +7,7 @@ import falcon
 import json
 from os import path
 
-from displacy.handlers import handle_parse, handle_steps, handle_manual
+from displacy.handlers import handle_parse, handle_manual
 
 
 try:

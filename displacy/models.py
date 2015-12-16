@@ -2,11 +2,20 @@ from collections import defaultdict
 
 
 class Model(object):
-    def __init__(self, doc, states, actions, client_state):
+    def __init__(self, doc, states, actions, client_state, pushed, popped):
         word_edits = client_state.get('words', {}),
         tag_edits = client_state.get('tags', {})
-        words = [Word(w, w.i in word_edits, w.i in tag_edits) for w in doc]
-
+        words = []
+        for w in doc:
+            words.append(
+                Word(
+                    w,
+                    w.i in word_edits,
+                    w.i in tag_edits,
+                    w.i in pushed,
+                    w.i in popped
+                )
+            )
         self.parse = Parse(words, states)
         self.actions = actions
         self.client_state = client_state
@@ -23,30 +32,37 @@ class Parse(Model):
 
 
 class Word(Model):
-    def __init__(self, token, is_w_edit=False, is_t_edit=False):
+    def __init__(self, token, is_w_edit=False, is_t_edit=False, is_pushed=False,
+                 is_popped=False):
         self.word = token.orth_
         self.tag = token.pos_ if not token.ent_type_ else token.ent_type_
         self.is_entity = token.ent_iob in (1, 3)
         self.is_w_edit = is_w_edit
         self.is_t_edit = is_t_edit
+        self.is_pushed = is_pushed
+        self.is_popped = is_popped
         self.prob = token.prob
 
 
 class State(Model):
-    def __init__(self, heads, deps, stack, queue):
+    def __init__(self, heads, deps, stack, queue, diffs):
         queue = [w for w in queue if w >= 0]
         self.focus = min(queue) if queue else -1
         self.is_final = bool(not stack and not queue)
         self.stack = set(stack)
-        self.arrows = self._get_arrows(heads, deps)
+        self.arrows = self._get_arrows(heads, deps, diffs)
 
-    def _get_arrows(self, heads, deps):
+    def _get_arrows(self, heads, deps, diffs):
         arcs = defaultdict(dict)
         for i, (head, dep) in enumerate(zip(heads, deps)):
+            # Ignore arcs to/from punctuation
+            if dep == 'punct':
+                continue
+            is_new = i in diffs
             if i < head:
-                arcs[head - i][i] = Arrow(i, head, dep)
+                arcs[head - i][i] = Arrow(i, head, dep, is_new)
             elif i > head:
-                arcs[i - head][head] = Arrow(i, head, dep)
+                arcs[i - head][head] = Arrow(i, head, dep, is_new)
         output = []
         for level in range(1, len(heads)):
             level_arcs = []
@@ -59,9 +75,10 @@ class State(Model):
 
 
 class Arrow(Model):
-    def __init__(self, word, head, label):
+    def __init__(self, word, head, label, is_new):
         self.dir = 'left' if head > word else 'right'
         self.label = label
+        self.is_new = is_new
 
 
 def _as_json(value):

@@ -3,7 +3,7 @@ from __future__ import print_function
 
 import spacy.en
 from spacy.attrs import ORTH, SPACY, TAG, POS, ENT_IOB, ENT_TYPE
-from spacy.parts_of_speech import UNIV_POS_NAMES
+from spacy.parts_of_speech import NAMES as UNIV_POS_NAMES
 
 
 from . import models
@@ -76,7 +76,7 @@ def get_actions(parse_state, history_length):
     actions.append({'label': 'left', 'key': 'L', 'binding': 37,
                     'is_valid': NLU.parser.moves.is_valid(parse_state, 'L-det')})
     actions.append({'label': 'predict', 'key': '_', 'binding': 32,
-                    'is_valid': bool(parse_state.queue or parse_state.stack)})
+                    'is_valid': bool(queue or len(stack) > 1)})
     actions.append({'label': 'right', 'key': 'R', 'binding': 39,
                     'is_valid': NLU.parser.moves.is_valid(parse_state, 'R-dobj')})
     actions.append({'label': 'undo', 'key': '-', 'binding': 8,
@@ -110,30 +110,36 @@ def handle_parse(json_data):
     merge_entities(tokens)
     merge_nps(tokens)
     merge_punct(tokens)
-    state = models.State([w.head.i for w in tokens], [w.dep_ for w in tokens], [], [])
-    return models.Model(tokens, [state], [], client_state)
+    state = models.State(
+                [w.head.i for w in tokens],
+                [w.dep_ for w in tokens],
+                [],
+                [],
+                {}
+            )
+    return models.Model(tokens, [state], [], client_state, {}, {})
 
 
-def handle_steps(json_data):
-    text = json_data.get("text", "")
-    history = json_data.get("history", "")
-    client_state = json_data.get("client_state", {})
-    print('Steps=', repr(text))
-    tokens = NLU.tokenizer(text)
-    NLU.tagger(tokens)
-    NLU.matcher(tokens)
-
-    with NLU.parser.step_through(tokens) as state:
-        states = []
-        while not state.is_final:
-            action = state.predict()
-            state.transition(action)
-            states.append(models.State(state.heads, state.deps, state.stack, state.queue))
-    actions = [
-        {'label': 'prev', 'key': 'P', 'binding': 37, 'is_valid': True},
-        {'label': 'next', 'key': 'N', 'binding': 39, 'is_valid': True}
-    ]
-    return models.Model(state.doc, states, actions, client_state)
+#def handle_steps(json_data):
+#    text = json_data.get("text", "")
+#    history = json_data.get("history", "")
+#    client_state = json_data.get("client_state", {})
+#    print('Steps=', repr(text))
+#    tokens = NLU.tokenizer(text)
+#    NLU.tagger(tokens)
+#    NLU.matcher(tokens)
+#
+#    with NLU.parser.step_through(tokens) as state:
+#        states = []
+#        while not state.is_final:
+#            action = state.predict()
+#            state.transition(action)
+#            states.append(models.State(state.heads, state.deps, state.stack, state.queue))
+#    actions = [
+#        {'label': 'prev', 'key': 'P', 'binding': 37, 'is_valid': True},
+#        {'label': 'next', 'key': 'N', 'binding': 39, 'is_valid': True}
+#    ]
+#    return models.Model(state.doc, states, actions, client_state)
 
 
 def handle_manual(json_data):
@@ -151,38 +157,34 @@ def handle_manual(json_data):
     NLU.tagger(tokens)
     NLU.matcher(tokens)
 
+    prev_deps = []
+    prev_heads = []
+    prev_top = None
     with NLU.parser.step_through(tokens) as state:
         for action in history:
-            prev_deps, prev_heads, prev_stack = get_deps_heads_stack(state)
             prev_deps = list(state.deps)
             prev_heads = list(state.heads)
-            prev_stack = list(state.stack)
-            prev_queue = list(state.queue)
+            prev_top = max(state.stack) if state.stack else None
             state.transition(action)
 
-    diffs = _diff_state(prev_deps, prev_heads, prev_stack, prev_queue,
-                        state.deps, state.heads, state.stack, state.queue)
+    diffs = _diff_deps(prev_deps, prev_heads, state.deps, state.heads)
     
     NLU.entity(tokens)
     actions = get_actions(state.stcls, len(history))
+    pushed = {}
+    popped = {}
+    if prev_top not in state.stack:
+        popped = {prev_top: True}
+    if state.stack and max(state.stack) > prev_top:
+        pushed = {max(state.stack): True}
     return models.Model(tokens, [models.State(state.heads, state.deps,
                                  state.stack, state.queue, diffs)],
-                        actions, client_state)
+                        actions, client_state, pushed, popped)
 
 
-def _diff_state(prev_deps, prev_heads, prev_stack, prev_queue,
-                     deps,      heads,      stack,      queue):
+def _diff_deps(prev_deps, prev_heads, deps, heads):
     diff = {}
     for i, head in enumerate(heads):
         if deps[i] != '' and prev_deps[i] == '':
             diff[i] = {'dep': deps[i], 'head': head}
-    diff_stack = {}
-    for stack_word in stack:
-        if stack_word not in prev_stack:
-            diff.setdefault(stack_word, {})
-            diff[stack_word]['stack_add'] = True
-    for stack_word in prev_stack:
-        if stack_word not in stack:
-            diff.setdefault(stack_word, {})
-            diff[stack_word]['stack_del'] = True
     return diff
