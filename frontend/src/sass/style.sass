@@ -1,0 +1,619 @@
+// --> ../../css/style.css
+
+
+// Imports
+
+@import mixins
+@import animations
+@import themes
+@import fonts
+
+
+// Style
+
+$font: "Karla", arial, sans-serif
+$color-light: white
+$color-dark: black
+$hidden: rgba(0, 0, 0, 0)
+
+
+// Sizes
+
+$font-size: 14px
+$line-height: 1.5em
+$icon-size: 1.7em
+$icon-size-large: $icon-size*1.5
+$header-size: 35px
+$header-spacing: $header-size/7
+$logo-size: $header-size*4
+$sidenav-size: 275px
+$border: 2px
+
+
+// Icons
+
+$icons: (spinner: '\e105', note-text: '\e906', note-pen: '\e91c', help: '\e919', share: '\e91b', action-shift: '\e909', action-reduce: '\e90b', action-left: '\e90c', action-right: '\e90a', action-predict: '\e904', action-undo: '\e902', toggle-note: '\e91d', delete-note: '\e916', dot-menu: '\e900', easteregg: '\e901')
+
+@each $icon in (spinner, note-text, note-pen, help, share, dot-menu, toggle-note, delete-note, easteregg)
+	.#{$icon}
+		@include icon($icon, $icon-size)
+
+@each $icon in (action-shift, action-reduce, action-left, action-right, action-predict, action-undo)
+	.#{$icon}
+		@include icon($icon, $icon-size-large)
+
+
+// Templates
+
+%flex
+	display: -webkit-box-flex
+	display: -webkit-flex
+	display: flex
+
+%content
+	font: normal $font-size + 1px $font
+	line-height: $line-height
+
+	a:not(.close):not(.button):not(.icon)
+		border-bottom: 1px solid
+
+%form-field
+	@extend %content
+	display: inline-block
+	border: $border solid
+	padding: 0.25em 0.5em
+
+	&::selection
+		@include colors($color-light, $color-dark)
+
+	&::-moz-selection
+		@include colors($color-light, $color-dark)
+
+%icon
+	font-family: $ff-icons
+	display: inline-block
+	font-weight: normal
+	font-style: normal
+	line-height: 1em
+
+	&:hover
+		@include vendor(transform, scale(1.1))
+
+%colors
+	@include colors($color-light, $color-dark)
+
+	&::selection
+		@include colors($color-dark, $color-light)
+
+	&::-moz-selection
+		@include colors($color-dark, $color-light)
+
+
+// General
+
+*
+	@include spacing(0, 0)
+	border: 0
+	outline: 0
+	box-sizing: border-box
+
+body
+	@include size(100%, 100vh)
+	font-size: $font-size
+	overflow: scroll
+
+h2
+	margin: 0 0 1em 0
+
+h3
+	margin: 1.75em 0 1em 0
+
+p
+	margin: 1em 0
+
+a
+	color: inherit
+	cursor: pointer
+	text-decoration: none
+
+button
+	cursor: pointer
+
+
+// Header Bar
+
+body > header
+	@extend %flex
+	@extend %colors
+	@include position(fixed, top, left, 0, 0)
+	@include spacing(0, $header-spacing)
+	@include size(100%, $header-size)
+	box-sizing: content-box
+	z-index: 200
+
+
+// Logo
+
+.logo
+	@include size($logo-size, $header-size)
+	background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjIgMzU0IDU5MS4yIDEzNC4xIj4gIDxwYXRoIGQ9Ik0xODQgNDE4LjNjLTQuNy0yLjctMTAuMi00LTE1LjUtNS40bC04LTIuMmMtMi40LS43LTUtMS4zLTctMi41LTItMS00LTIuOC00LjUtNS4yLS40LTIuNC42LTQuNSAyLjYtNiA0LjItMy4yIDEwLjQtMy41IDE1LjMtMiA1LjMgMS43IDcuNiA2LjcgMTEuNiAxMC4yIDMuNyAzLjIgMTEgMi4yIDEzLTIuNSAyLTUuMy0yLTEwLjgtNi0xNC00LjUtMy4yLTEwLjItNS0xNS41LTYtMTAuNS0xLjctMjMuNC0xLTMxLjcgNi42LTQgMy41LTYuNiA4LjgtNi44IDE0LS4yIDUuNSAxLjggMTAuMiA1LjggMTMuOCA4LjQgNy43IDIwLjQgOC44IDMwLjYgMTIuMiA0IDEuMyA4LjIgMyA5IDcuOC41IDIuNCAwIDQuNi0yIDYuMy0xLjcgMS43LTQgMi44LTYuNSAzLjMtNC44IDEtMTEgLjYtMTUtMi0yLjQtMS4yLTQuMi0zLTUuOC01LjMtMS42LTIuMi0yLjctNC44LTQuNy02LjYtMS44LTEuNS01LTEuNi03LTEtMi41IDEtNC41IDIuOC01LjIgNS40LTEuMyA1IDIuMiAxMSA1LjggMTQgOC41IDcuNiAyMS4yIDkgMzIgOCA1LjItLjYgMTAuNi0xLjcgMTUuMi00IDQuNS0yLjQgOC02LjIgMTAtMTEgMi00LjQgMi41LTEwLjIgMS0xNS0uOC0yLjMtMi00LjMtNC02LTItMS44LTQuMy0zLjQtNi43LTQuN3ptODUuNy0zMS4yYy02LjUtNC0xNC42LTUuMy0yMi0zLjgtNy43IDEuNS0xMy42IDYuNC0xOC41IDEyLjMgMC00IDAtOC4zLTMuMy0xMS0zLjgtMy0xMC4yLTIuNC0xMyAxLjYtMiAzLjItMS44IDctMS44IDEwLjd2NzcuN2MwIDUuMy4yIDEyLjYgNi42IDEzLjcgMy42LjcgNy42IDAgOS43LTMuMyAxLjctMi43IDItNiAyLTkuMnYtMTUtMTMuNmMzLjIgNC4yIDcuNSA4IDEyLjQgMTAuNSA0LjggMi4zIDEwLjcgMi43IDE2IDIgMTEuNC0xLjQgMjAuMi05LjQgMjQuNC0xOS43IDMuOC05LjQgNC40LTIwLjQgMi4zLTMwLjMtMi05LTctMTcuOC0xNS0yMi40LTUtMyA1IDMgMCAwem0tNS43IDQ3Yy0yLjIgNS02LjIgOS0xMS42IDEwLjQtNSAxLTEwLjMgMC0xNC4yLTMtOC4yLTYuNy05LjMtMTguNy03LjQtMjguNCAxLTQuNiAyLjgtOSA2LjQtMTIgMy44LTMuMyA4LjgtNSAxMy44LTQuMiA1LjQuOCA5LjcgNC40IDEyLjIgOS4yIDIuNiA1LjIgMy4yIDEwLjggMyAxNi42IDAgNC0uNyA3LjgtMi4yIDExLjR6bTE0MC44LS44bC4yLTE2LjZjMC01LjcgMC0xMS41LTEuMy0xNy0xLTQuNi0zLjMtOC44LTctMTEuNy0zLjgtMy04LjQtNC40LTEzLTUtNi0xLTEyLTEtMTcuNy0uNi01LjMuNC0xMC40IDEuNi0xNS4yIDMuOC00LjYgMi4yLTguOCA1LjYtMTEgMTAuMy0xIDIuMy0xLjYgNS4zLTEgNy44LjYgMi42IDIuNiA0LjcgNSA1LjQgMiAuNiA1IC43IDctLjUgMS41LTEgMi42LTMuNCAzLjYtNSAyLjctNC40IDYuNi03LjYgMTEuNy04LjQgMy0uNSA1LjgtLjUgOC42LS4zIDIgLjIgNC40LjYgNi4zIDEuNiAzLjcgMi4zIDQuNiA3LjUgNSAxMS40djFjMCAuNy0uMy41LS43LjdsLTIuMi43LTQuNCAxLjItNy43IDEuNmMtNS4zIDEtMTAuNSAyLjMtMTUuNyAzLjMtNC42LjgtOSAyLjMtMTIuNyA1LjMtNCAzLjMtNi42IDgtNy4yIDEzLjItLjYgNS42IDEgMTEuMyA0LjggMTUuNiAzLjUgNC4yIDguNSA2LjcgMTMuNyA3LjcgNS41IDEgMTEuNy43IDE3LjItMSA1LjYtMS43IDEwLjgtNSAxNS40LTguNGwxLS43YzIgMy40IDQuNCA3LjMgOCA5LjUgMy41IDIuMyA4IDEgMTAuOC0yIDEuMi0xLjIgMi0zIDItNC43LS4yLTEuMy0uNi0yLjctMS00LTEuMi00LjYtMi42LTkuMi0yLjYtMTR6bS0xOC42LTkuMmMwIDQuNy0uMiAxMC0yLjUgMTQtMi43IDQuOC03LjcgNy42LTEzIDguNi01IDEtMTAuOC40LTE0LjMtNC0zLTQtMi41LTkuOCAxLjQtMTMgMy42LTMgOC43LTMuNSAxMy00LjQgNS4zLTEgMTAuNi0yIDE1LjYtNCAwIC42LjIgMy0uMiAyLjh6bTExNy40LTcuM2MtMi40IDAtNC43LjYtNi4zIDIuNC0xLjcgMi40LTIuNiA1LTMuNiA3LjYtMS44IDQuNy00LjcgOS04LjggMTItOC42IDYuMi0yMS44IDYuNC0zMC40LjMtOC42LTYuMi0xMS40LTE3LjMtMTItMjcuMi0uNC0xMCAuNi0yMS4zIDYuNC0zMCAyLjYtMy44IDYuMi03IDEwLjYtOSA0LjYtMiAxMC0yLjUgMTUtMS44czkuNyAzIDEzLjIgNi43YzIgMiAzLjQgNC4yIDQuOCA2LjVzMi41IDQuOCA0LjMgN2MzIDMuNiA5IDQgMTIuNi43IDQtMy44IDMuMi0xMCAxLjMtMTQuNS00LjMtMTAtMTQuMi0xNy4zLTI0LjMtMjAuNy0xMS4zLTMuNy0yNC0zLjMtMzUgMS0xMC40IDQtMTkgMTItMjQgMjItNS4zIDEwLjUtNi43IDIyLjctNS44IDM0LjMgMSAxMS44IDUuNCAyNCAxMy41IDMyLjUgNCA0LjIgOC42IDcuNiAxNCA5LjggNS4zIDIuMiAxMS4yIDMuMiAxNyAzLjYgMTEuNC43IDIzLTEuNiAzMi4zLTguNyA2LTQuNyAxMC44LTExLjUgMTMtMTkgMS0zIDEuNy03IC4yLTEwLjItMS43LTMtNS01LjMtOC40LTUuM3ptODguNi0zMGMtMS41LTIuNC00LTQuMy02LjgtNC40LTIuMyAwLTUgLjQtNi40IDIuMy0yLjUgMy4yLTMuNyA3LjUtNSAxMS4zbC0zLjYgMTAuMi0xMS4yIDMxLjgtLjUgMS4zLTktMjZjLTItNS41LTMuNy0xMS01LjYtMTYuMy0xLjMtNC4yLTIuNS05LTUuNS0xMi41LTMuNy00LTEwLjQtMi4yLTEzLjQgMS44cy0uOCA4LjQuOCAxMi40bDMgNy42IDEzLjYgMzQuNCA1LjQgMTMuNyAxLjIgM3YuN2wtMS42IDRjLTEuNyAzLjgtMy41IDkuNi04IDExLTIuOCAxLTUuNC42LTguMyAwLTIuNC0uMy01LjIgMC03LjMgMS40LTMuNyAyLjctMyA5IC43IDExLjUgMS44IDEgNCAxLjQgNiAxLjggMi44LjQgNS42LjUgOC41LjUgNSAwIDEwLTEgMTQuNC0zLjggNC4zLTMgNy03IDktMTEuOCAyLTMuOCAzLjQtNy44IDUtMTEuN2wxMi0zMS41YzMuNS05LjQgNy0xOSAxMC43LTI4LjNsLjYtMS40Yy44LTIgMS41LTQuNCAyLTYuNi42LTIuNCAxLTQuNi0uNC02LjZ6bS0yODItMzIuN2MtMi40IDAtNC44IDEtNi42IDIuNi0xLjcgMS42LTIuMyA0LjItMi41IDYuNHY4MS4yYzAgMy42LS4zIDcuNCAxLjYgMTAuNiAyLjUgNC40IDguMyA2IDEyLjcgMy4zIDMuNy0yIDQuNy02IDQuNy0xMHYtMjItMzguNy0yMS44YzAtMi40LS4zLTUtMS41LTctMS44LTIuOC01LTQuNS04LjItNC41em0tMjA1IC44Yy01IDAtOS4zIDQtOS41IDkgMCA1LjQgMy42IDkuNSA5IDkuOCA1IC4zIDkuNS0zLjIgMTAtOC40IDAtMi41LS40LTUtMi03cy00LTMuMi02LjUtMy40aC0xem0wIDI3LjZjLTUgMC04LjYgMy43LTkuMyA4LjUtLjMgMS40LS4zIDMtLjMgNC40djQ4LjhjMCA0LjUtLjQgOS41IDMgMTMgMy43IDMuNSAxMC4yIDMuNCAxMy41LS41IDItMi40IDIuNS01LjcgMi41LTguN3YtMjkuOC0xNy43YzAtMyAuMi02LjIgMC05LjItLjYtNS4yLTQuMy05LTkuNi05ek02Ny41IDM1NGMtMi40IDAtNC43LjgtNi40IDIuNi0xLjYgMS43LTIuMiA0LTIuNSA2LjItLjIgMi0uMiA0LS4yIDUuOHYyNS4yYy0zLjctNC04LTcuNS0xMy05LjUtNS4yLTItMTEtMi4zLTE2LjMtMS43LTkuOCAxLjItMTggNy0yMi41IDE1LjgtNSA5LjUtNS43IDIxLjMtMy44IDMxLjggMS44IDEwLjYgNy40IDIxLjQgMTcuNSAyNi4zIDYuNCAzIDE0IDQgMjEgMiA3LTEuNyAxMi42LTYuMiAxNy4zLTExLjYgMCA0IC4zIDguNSA0IDExIDQgMi44IDEwIDEuOCAxMi41LTIuNSAxLjctMyAxLjUtNi44IDEuNS0xMC4ydi0zMC44LTM3LTExLTEuNmMwLTIuMi0uMy00LjQtMS02LjQtMS0yLjItMy0zLjUtNS4zLTQuMi0xLS4zLTItLjQtMy0uNHpNNTUgNDM0LjJjLTIgNC44LTYgOC43LTExIDEwLTUuMyAxLjUtMTEuMy4zLTE1LjQtMy4yLTQtMy4zLTYtOC41LTYuOC0xMy40LTEtNS42LS43LTExLjYgMS0xNyAxLjQtNSA0LjQtMTAgOS4yLTEyLjQgNS0yLjQgMTEtMS44IDE1LjggMSA5LjYgNS43IDExIDE5LjUgOSAyOS40LS4zIDItLjggMy44LTEuNyA1LjYtMS41IDMuNyAxLjgtMy41IDAgMHoiLz48L3N2Zz4=) center center no-repeat
+	background-size: 65%
+	color: $hidden
+
+
+// Menu Icon
+
+.menu-button
+	@extend %colors
+	@include size($header-size)
+	@include vendor(appearance, none)
+	@include spacing(0, 0)
+	position: relative
+	display: inline-block
+	overflow: hidden
+	border: none
+	text-indent: -9999px
+	transition: background 0.3s
+
+	span
+		@include position(absolute, top, left, 15px, 3px)
+		right: 10px
+		height: 3px
+		display: block
+		background: $color-dark
+		transition: background 0s 0.2s
+
+		&:before,
+		&:after
+			content: ""
+			@include size(100%, 3px)
+			position: absolute
+			left: 0
+			display: block
+			background: $color-dark
+			transition-duration: 0.2s, 0.2s
+			transition-delay: 0.1s, 0s
+
+		&:before
+			transition-property: top, transform
+			top: -7px
+
+		&:after
+			transition-property: bottom, transform
+			bottom: -7px
+
+	&.active span
+		background: none
+
+		&:before,
+		&:after
+			transition-delay: 0s, 0.2s
+
+		&:before
+			top: 0
+			@include vendor(transform, rotate(45deg))
+
+		&:after
+			bottom: 0
+			@include vendor(transform, rotate(-45deg))
+
+
+// Input Box
+
+.input-box
+	@extend %flex
+	@include flex(flow, row nowrap)
+	@include flex(flex, 1)
+	padding: 0 $header-size 0 $sidenav-size - $logo-size - $header-size - $header-spacing
+
+	input,
+	button
+		@extend %form-field
+		@extend %colors
+		height: $header-size
+
+	input
+		@include flex(flex, 1)
+		margin: 0 0.5em 0 0
+
+
+// Toolbar
+
+.toolbar
+	@extend %flex
+	@include flex(flow, row nowrap)
+	list-style-type: none
+	width: auto
+
+	li
+		color: $hidden
+		margin: 0.5em 0.75em 0 0
+		cursor: pointer
+
+		&:before
+			@extend %colors
+
+	.dot-menu
+		display: none
+
+
+// Loading Indicator
+
+.spinner
+	@include animation(spinner 1s infinite linear)
+	line-height: 1
+	width: auto
+
+	&:not(.active)
+		visibility: hidden
+
+
+// Tooltips
+
+[data-tooltip]
+	display: inline
+	position: relative
+
+	&:after
+		@include position(absolute, top, left, 2.75em, 50%)
+		@include colors($color-dark, $color-light)
+		@include vendor(transform, translateX(-50%) translateY(-2px))
+		content: attr(data-tooltip)
+		font-family: $font
+		opacity: 0
+		visibility: hidden
+		padding: 0.25em 0.5em
+		white-space: nowrap
+		border-radius: $border*2
+		transition: opacity 0.2s cubic-bezier(0.64, 0.09, 0.08, 1), transform 0.2s cubic-bezier(0.64, 0.09, 0.08, 1)
+		z-index: 200
+
+	&:hover,
+	&:focus
+		&:after
+			@include vendor(transform, translateX(-50%) translateY(0))
+			display: block
+			opacity: 1
+			visibility: visible
+
+
+// Side Navigation
+
+.sidenav
+	@extend %content
+	@extend %colors
+	@include position(fixed, top, left, $header-size, 0)
+	@include size($sidenav-size, 100vh)
+	@include spacing(0, 2em 1em)
+	font-size: 1em
+	overflow: auto
+	z-index: 150
+
+	&:not(.active):not(.exit)
+		visibility: hidden
+
+	&.intro
+		@include vendor(animation, slideInLeft 0.25s ease-in-out)
+
+	&.exit
+		@include vendor(animation, slideOutLeft 0.25s ease-in-out)
+
+
+// displaCy Settings
+
+#displacy
+	margin-top: $header-size
+
+	.words
+		text-align: center
+
+	.current-stack
+		opacity: 0.5
+		margin: 6em 1.5em
+		font-size: 1em
+
+	.is-new
+		@include vendor(animation, pulse 0.2s)
+
+	input,
+	select
+		@include vendor(appearance, none)
+		@include colors(transparent, inherit)
+		display: inline
+		font: inherit
+		cursor: pointer
+		text-align: center
+
+	input
+		@include spacing(0.25em, 0.25em)
+
+
+// Actions
+
+$actions-width: 175px
+$actions-spacing: 5px
+$actions-button-width: $actions-width/3 - $actions-spacing*2
+
+.actions
+	@include position(fixed, top, right, $header-size*2, 2em)
+	width: $actions-width
+	text-align: center
+	z-index: 50
+
+	&:not(.active)
+		visibility: hidden
+
+	button
+		@extend %colors
+		@include size($actions-button-width)
+		@include spacing(0.25em, 0.125em 0.25em)
+		position: relative
+		border-radius: $border*2
+		border: $border solid
+		float: left
+
+		&[disabled]
+			opacity: 0.5
+			cursor: not-allowed !important
+
+			&:hover
+				@include vendor(transform, translate(0, 0))
+
+		&.action-shift
+			margin: 0.25em calc(#{$actions-button-width} + 0.75em)
+
+		&:before
+			display: block
+			@include vendor(transform, none !important)
+
+		&:hover
+			@include vendor(transform, translate(1px, 1px))
+
+
+// Notes
+
+$note-size: 150px
+$note-size-small: $icon-size-large*1.2
+
+.note
+	@extend %content
+	@extend %colors
+	@extend %flex
+	@include flex(flow, column nowrap)
+	@include vendor(animation, bounceIn 0.5s)
+	font-size: 0.75em
+	border: $border solid
+	visibility: hidden
+
+	.note-content
+		@extend %content
+		@include spacing(0, 0.5em)
+		@include flex(flex, 1)
+		background: transparent
+		resize: none
+
+	header
+		@extend %flex
+		@include flex(flow, row nowrap)
+		@include spacing(0, 0.5em 0.25em)
+		border-bottom: $border solid
+		font-weight: bold
+		overflow: visible
+
+		.headline
+			@include flex(flex, 1)
+			@include spacing(0, 0 0 0 0.5em)
+
+	@include order(".toggle-note" ".headline" ".delete-note")
+
+	button
+		@include colors(transparent, $hidden)
+		min-height: 1.9em
+
+		&:before
+			@extend %colors
+
+	&.selected
+		opacity: 0.5
+
+	&:not(.active)
+		@include size($note-size-small !important)
+		@include vendor(transform, translateY(calc(-#{$note-size} + #{$note-size-small})))
+		@include vendor(animation, none)
+		border-radius: 50%
+		overflow: hidden
+
+		.toggle-note
+			@include icon(note-text, $icon-size-large)
+
+		header
+			border: 0
+
+		.note-content,
+		.delete-note,
+		.headline
+			display: none
+
+
+// Toasts
+
+.toast
+	@extend %content
+	@extend %colors
+	@include position(fixed, bottom, right, 0, 0)
+	@include spacing(1em, 1em 1.25em)
+	@include size(14.5em, auto)
+	@include vendor(animation, bounceInUp 0.75s)
+	border-radius: $border*2
+	border: $border solid
+	z-index: 150
+
+
+// Modals
+
+.modal
+	@extend %flex
+	@include position(fixed, top, left, 0, 0)
+	@include size(100%)
+	justify-content: center
+	align-items: center
+	background: rgba($color-dark, 0.65)
+	z-index: 250
+
+	&:not(.active):not(.exit)
+		visibility: hidden
+
+	.theme-light &
+		background: rgba($color-dark, 0.85)
+
+	&.intro > div
+		@include vendor(animation, bounceIn 0.75s ease-in-out)
+
+	&.exit > div
+		@include vendor(animation, bounceOut 0.25s ease-in-out)
+		visibility: visible
+
+	.dialog
+		@extend %content
+		@include colors(transparent, $color-light)
+		@include size(50vw, auto)
+		overflow: auto
+
+		.close
+			@extend %form-field
+			@include colors(transparent, $color-light)
+			display: block
+			font-size: 1.25em
+			margin: 2em auto 0 auto
+
+		.share
+			@extend %form-field
+			@include colors(transparent, $color-light)
+			display: block
+			font-size: 1.5em
+			width: 100%
+			margin: 1.25em 0 0 0
+
+
+// Switches
+
+$switch-size: 35px
+$switch-spacing: 5px
+
+.switch-container
+	@extend %flex
+	@include spacing($switch-spacing 0, 0)
+	justify-content: space-between
+
+.switch
+	@include flex(flex, 0 0 $switch-size)
+	@include vendor(user-select, none)
+	@include size($switch-size, $switch-size/4)
+	position: relative
+	display: block
+	margin: 0 $switch-spacing*2
+
+	input[type="checkbox"]
+		display: none
+
+		&:checked + label
+			border-color: lighten($color-dark, 50%)
+
+			&:before
+				border-color: lighten($color-dark, 50%)
+				right: 0
+				background-color: $color-dark
+
+		&:disabled + label
+			opacity: 0.25
+			cursor: not-allowed
+
+	label
+		display: block
+		overflow: hidden
+		cursor: pointer
+		height: $switch-size/4
+		padding: 0
+		line-height: $switch-size/4
+		border: 0
+		border-radius: $switch-size/2
+		border: 1px solid lighten($color-dark, 50%)
+
+		&:before
+			@include position(absolute, top, right, 0, $switch-size*0.75)
+			content: ""
+			display: block
+			width: $switch-size/2
+			margin: -$switch-size/8
+			background: $color-dark
+			bottom: 0
+			border-radius: $switch-size/2
+
+
+// Easter Egg
+
+.easteregg
+	@include spacing(1em 0, 0)
+	@include colors($color-light, $hidden)
+	border: 0
+
+	&:before
+		@extend %colors
+
+.panic-button
+	@extend %form-field
+	@extend %colors
+	@include position(fixed, top, left, $header-size*2, 2em)
+
+
+// Media Queries
+
+@media only screen and (max-width: 767px)
+	#displacy
+		@include size(100vw, 100vh)
+
+	[data-tooltip]:hover:after,
+	[data-tooltip]:focus:after,
+	.spinner
+		display: none
+
+	.toolbar
+		@include flex(flow, row wrap)
+		@include size($header-size + $header-spacing, auto)
+		background: $color-light
+
+		.dot-menu
+			display: block
+			background: transparent
+			margin: 0.375em 0 0 0
+
+		li
+			@include spacing(0, 0 0.25em)
+			@include size($header-size)
+			display: none
+			box-sizing: content-box
+
+		&:hover li
+			display: block
+
+	.input-box
+		padding: 0
+
+		input
+			width: 100%
+			font-size: 1em !important
+
+			& + .input-buttons
+				display: none
+
+			&:focus + .input-buttons
+				display: block
+
+		.input-buttons
+			@include position(absolute, top, right, $header-size + $header-spacing*2, $header-size + $header-spacing*3)
+			background: $color-light
+			padding: 0.25em
+
+	.dialog
+		width: 100%
+		padding: 1.25em
