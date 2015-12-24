@@ -2,3 +2,9 @@
 *.swp
 displacy/*.pyc
 displacy/*.swp
+
+*.jadec
+
+*.sassc
+
+*.scssc
