@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <link rel="stylesheet" href="css/style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="displaCy | Dependency Parse Tree Visualization with CSS and JavaScript">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="http://spacy.io/displacy/preview.png">
+    <meta property="og:site_name" content="displaCy">
+    <meta property="og:description" content="displaCy lets you peek inside spaCy's syntactic parser, as it reads a sentence word-by-word. By repeatedly choosing from a small set of actions, it links the words together according to their syntactic structure.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@spacy_io">
+    <meta name="twitter:title" content="displaCy | Dependency Parse Tree Visualization with CSS and JavaScript">
+    <meta name="twitter:description" content="displaCy lets you peek inside spaCy's syntactic parser, as it reads a sentence word-by-word. By repeatedly choosing from a small set of actions, it links the words together according to their syntactic structure.">
+    <meta name="twitter:image" content="http://spacy.io/displacy/preview.png">
+  </head>
+  <body class="theme-dark">
+    <div id="displacy"></div>
+    <header>
+      <button id="nav-icon" class="menu-button"><span>Toggle navigation</span></button>
+      <div class="logo">displaCy | Dependency Parse Tree Visualization with CSS and JavaScript</div>
+      <div class="input-box">
+        <input id="input" type="text" placeholder="Type a sentence...">
+        <div class="input-buttons">
+          <button id="button-parse">Parse</button>
+          <button id="button-manual">Annotate</button>
+        </div>
+      </div>
+      <ul class="toolbar">
+        <li class="dot-menu"></li>
+        <li id="button-note" data-tooltip="Add a note" class="note-pen">Add a note</li>
+        <li id="button-help" data-tooltip="Info" class="help">Info</li>
+        <li id="button-share" data-tooltip="Share parse" class="share">Share parse</li>
+        <li id="loading" class="spinner"></li>
+      </ul>
+    </header>
+    <nav id="sidenav" class="sidenav">
+      <h3>Settings</h3>
+      <div class="switch-container"><span>Light theme</span>
+        <div class="switch">
+          <input id="theme_light" type="checkbox" class="switcher">
+          <label for="theme_light"></label>
+        </div>
+      </div>
+      <h3>About displaCy</h3>
+      <p>displaCy lets you peek inside <a href="http://spacy.io">spaCy&#39;s</a>  syntactic parser, as it reads a sentence word-by-word. By repeatedly choosing from a small set of actions, it links the words together according to their syntactic structure. displaCy makes <a href="http://ines.io/blog/developing-displacy">clever use of CSS</a> and uses modern web standards to work with the browser, instead of against it.</p>
+      <button id="easteregg" data-tooltip="Click me!" class="easteregg">Click me!</button>
+    </nav>
+    <div id="intro" class="modal">
+      <div class="dialog">
+        <h2>Welcome to the new displaCy!</h2>
+        <p>displaCy lets you peek inside <a href="http://spacy.io">spaCy&#39;s</a> syntactic parser, as it reads a sentence word-by-word. By repeatedly choosing from a small set of actions, it links the words together according to their syntactic structure. This type of representation powers a wide range of technologies, from translation and summarization, to sentiment analysis and algorithmic trading.</p>
+        <p>displaCy makes <a href="http://ines.io/blog/developing-displacy">clever use of CSS</a> and uses modern web standards to work with the browser, instead of against it.</p>
+        <button class="close">Got it!</button>
+      </div>
+    </div>
+    <div id="help" class="modal">
+      <div class="dialog">
+        <h2>About displaCy</h2>
+        <p>displaCy lets you peek inside <a href="http://spacy.io">spaCy&#39;s</a>  syntactic parser, as it reads a sentence word-by-word. By repeatedly choosing from a small set of actions, it links the words together according to their syntactic structure. This type of representation powers a wide range of technologies, from translation and summarization, to sentiment analysis and algorithmic trading.</p>
+        <p>displaCy makes <a href="http://ines.io/blog/developing-displacy">clever use of CSS</a> and uses modern web standards to work with the browser, instead of against it.</p>
+        <button class="close">Got it!</button>
+      </div>
+    </div>
+    <div id="share" class="modal">
+      <div class="dialog">
+        <h2>Share displaCy</h2>
+        <p>Some text explaining how this works. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam non sodales libero. Sed gravida nibh vel viverra gravida. Morbi non massa vel metus imperdiet placerat. Quisque fermentum, odio at consequat suscipit, lacus purus venenatis mi, vel semper justo metus sit amet turpis. Vestibulum rhoncus nulla enim, vitae semper enim auctor in. Vestibulum ut magna et odio posuere euismod. Sed condimentum eget velit vitae iaculis. Integer mattis, velit id sollicitudin volutpat, dui lorem maximus nunc, et ultricies elit odio non felis.</p>
+        <input id="share-link" onfocus="this.select(this)" class="share">
+        <button class="close">Close</button>
+      </div>
+    </div>
+    <script src="js/displacy.js"></script>
+    <script src="js/displacy-demo.js"></script>
+    <script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){ (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga'); //ga('create', 'UA-58931649-1', 'auto'); ga('send', 'pageview');</script>
+  </body>
+</html>
