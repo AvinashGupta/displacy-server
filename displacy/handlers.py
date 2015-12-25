@@ -65,7 +65,7 @@ def merge_punct(tokens):
          tokens.merge(*merge)
 
 
-def get_actions(parse_state, history_length):
+def get_actions(parse_state, history_length, is_final):
     actions = []
     queue = list(sorted(parse_state.queue))
     stack = list(sorted(parse_state.stack))
@@ -82,7 +82,7 @@ def get_actions(parse_state, history_length):
                     'is_valid': history_length != 0})
     actions.append({'label': 'reduce', 'key': 'D', 'binding': 40,
                     'is_valid': NLU.parser.moves.is_valid(parse_state, 'D')})
-    if not parse_state.stack and not parse_state.queue:
+    if is_final:
         for action in actions:
             if action['label'] != 'undo':
                 action['is_valid'] = False
@@ -173,7 +173,7 @@ def handle_manual(json_data):
     diffs = _diff_deps(prev_deps, prev_heads, state.deps, state.heads)
     
     NLU.entity(tokens)
-    actions = get_actions(state.stcls, len(history))
+    actions = get_actions(state.stcls, len(history), state.is_final)
     pushed = {}
     popped = {}
     if prev_top not in state.stack:
