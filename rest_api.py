@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 import sys
+import sqlitedict
 
 import falcon
 import json
@@ -21,8 +22,8 @@ class Endpoint(object):
         self.make_model = make_model
 
     def set_header(self, resp):
-        resp.content_type = 'text/string'
-        resp.append_header('Access-Control-Allow-Origin', "*")
+        resp.content_type = b'text/string'
+        resp.append_header(b'Access-Control-Allow-Origin', b"*")
         resp.status = falcon.HTTP_200
 
     def set_body(self, resp, parse):
