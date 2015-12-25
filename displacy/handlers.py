@@ -108,11 +108,15 @@ def handle_parse(json_data):
     text = json_data.get("text", "")
     history = json_data.get("history", "")
     client_state = json_data.get("client_state", {})
+    settings = json_data.get('params', {}).get('server_config', {})
     print('Parse=', repr(json_data))
     tokens = NLU(text)
-    merge_entities(tokens)
-    #merge_nps(tokens)
-    merge_punct(tokens)
+    if settings.get('merge_entities', True):
+        merge_entities(tokens)
+    if settings.get('merge_nps', False):
+        merge_nps(tokens)
+    if settings.get('merge_punct', True):
+        merge_punct(tokens)
     state = models.State(
                 [w.head.i for w in tokens],
                 [w.dep_ for w in tokens],
@@ -121,28 +125,6 @@ def handle_parse(json_data):
                 {}
             )
     return models.Model(tokens, [state], [], client_state, {}, {})
-
-
-#def handle_steps(json_data):
-#    text = json_data.get("text", "")
-#    history = json_data.get("history", "")
-#    client_state = json_data.get("client_state", {})
-#    print('Steps=', repr(text))
-#    tokens = NLU.tokenizer(text)
-#    NLU.tagger(tokens)
-#    NLU.matcher(tokens)
-#
-#    with NLU.parser.step_through(tokens) as state:
-#        states = []
-#        while not state.is_final:
-#            action = state.predict()
-#            state.transition(action)
-#            states.append(models.State(state.heads, state.deps, state.stack, state.queue))
-#    actions = [
-#        {'label': 'prev', 'key': 'P', 'binding': 37, 'is_valid': True},
-#        {'label': 'next', 'key': 'N', 'binding': 39, 'is_valid': True}
-#    ]
-#    return models.Model(state.doc, states, actions, client_state)
 
 
 def handle_manual(json_data):
