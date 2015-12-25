@@ -2,9 +2,9 @@ from collections import defaultdict
 
 
 class Model(object):
-    def __init__(self, doc, states, actions, client_state, pushed, popped):
-        word_edits = client_state.get('words', {}),
-        tag_edits = client_state.get('tags', {})
+    def __init__(self, doc, parse_state, actions, edits, pushed, popped):
+        word_edits = edits.get('words', {}),
+        tag_edits = edits.get('tags', {})
         words = []
         for w in doc:
             words.append(
@@ -16,9 +16,9 @@ class Model(object):
                     w.i in popped
                 )
             )
-        self.parse = Parse(words, states)
+        self.parse = Parse(words, parse_state)
         self.actions = actions
-        self.client_state = client_state
+        self.edits = edits
         self.version = '0.99' # TODO: Replace when spacy.about is available
 
     def to_json(self):
@@ -27,9 +27,12 @@ class Model(object):
 
 
 class Parse(Model):
-    def __init__(self, words, states):
+    def __init__(self, words, state):
         self.words = words
-        self.states = states
+        self.focus = state.focus
+        self.is_final = state.is_final
+        self.stack = state.stack
+        self.arrows = self.arrows
 
 
 class Word(Model):
