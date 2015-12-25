@@ -41,7 +41,6 @@ def merge_punct(tokens):
     collect = False
     start = None
     merges = []
-
     for word in tokens:
         if word.whitespace_:
             if collect:
@@ -83,6 +82,10 @@ def get_actions(parse_state, history_length):
                     'is_valid': history_length != 0})
     actions.append({'label': 'reduce', 'key': 'D', 'binding': 40,
                     'is_valid': NLU.parser.moves.is_valid(parse_state, 'D')})
+    if not parse_state.stack and not parse_state.queue:
+        for action in actions:
+            if action['label'] != 'undo':
+                action['is_valid'] = False
     return actions
 
 
@@ -108,7 +111,7 @@ def handle_parse(json_data):
     print('Parse=', repr(json_data))
     tokens = NLU(text)
     merge_entities(tokens)
-    merge_nps(tokens)
+    #merge_nps(tokens)
     merge_punct(tokens)
     state = models.State(
                 [w.head.i for w in tokens],
@@ -185,6 +188,6 @@ def handle_manual(json_data):
 def _diff_deps(prev_deps, prev_heads, deps, heads):
     diff = {}
     for i, head in enumerate(heads):
-        if deps[i] != '' and prev_deps[i] == '':
+        if deps[i] != '' and (i >= len(prev_deps) or prev_deps[i] == ''):
             diff[i] = {'dep': deps[i], 'head': head}
     return diff
