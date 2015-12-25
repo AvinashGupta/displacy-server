@@ -19,6 +19,7 @@ class Model(object):
         self.parse = Parse(words, states)
         self.actions = actions
         self.client_state = client_state
+        self.version = '0.99' # TODO: Replace when spacy.about is available
 
     def to_json(self):
         return {name: _as_json(value) for name, value in self.__dict__.items()
