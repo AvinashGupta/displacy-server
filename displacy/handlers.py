@@ -107,9 +107,8 @@ def _parse_history(history):
 def handle_parse(json_data):
     text = json_data.get("text", "")
     history = json_data.get("history", "")
-    client_state = json_data.get("client_state", {})
-    settings = json_data.get('params', {}).get('server_config', {})
-    print('Parse=', repr(json_data))
+    edits = json_data.get("edits", {})
+    settings = json_data.get('server_config', {})
     tokens = NLU(text)
     if settings.get('merge_entities', True):
         merge_entities(tokens)
@@ -124,13 +123,13 @@ def handle_parse(json_data):
                 [],
                 {}
             )
-    return models.Model(tokens, [state], [], client_state, {}, {})
+    return models.Model(tokens, state, [], edits, {}, {})
 
 
 def handle_manual(json_data):
     text = json_data.get("text", "")
     history = json_data.get("history", "")
-    client_state = json_data.get("client_state", {})
+    edits = json_data.get("edits", {})
     print('Manual=', repr(json_data))
 
     if not isinstance(text, unicode):
@@ -162,9 +161,9 @@ def handle_manual(json_data):
         popped = {prev_top: True}
     if state.stack and max(state.stack) > prev_top:
         pushed = {max(state.stack): True}
-    return models.Model(tokens, [models.State(state.heads, state.deps,
-                                 state.stack, state.queue, diffs)],
-                        actions, client_state, pushed, popped)
+    return models.Model(tokens, models.State(state.heads, state.deps,
+                                              state.stack, state.queue, diffs),
+                        actions, edits, pushed, popped)
 
 
 def _diff_deps(prev_deps, prev_heads, deps, heads):
