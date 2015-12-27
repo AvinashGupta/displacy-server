@@ -80,7 +80,7 @@
         _get('button-manual').addEventListener('click', function() { annotate(); });
         _get('button-note').addEventListener('click', function() { $.displayNote(); });
         _get('button-help').addEventListener('click', function() { showModal('help'); });
-        _get('button-share').addEventListener('click', displayShareLink);
+        //_get('button-share').addEventListener('click', displayShareLink);
         _get('nav-icon').addEventListener('click', toggleSidenav);
         _get('displacy').addEventListener('mousedown', hideSidenav);
         _get('easteregg').addEventListener('click', easteregg);
