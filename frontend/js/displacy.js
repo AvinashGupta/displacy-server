@@ -95,7 +95,7 @@ displaCy.prototype = {
 
         var style = [
             '#displacy *, #displacy *:before ,#displacy *:after { box-sizing:border-box }',
-            '#displacy { width: ' + words.length * arrowSizes.width + unit + '; overflow: visible; padding: 0; margin: 0; -webkit-user-select: none; -ms-user-select: none; -moz-user-select: none; user-select: none; min-height: 100vh; height: 100vh}', 
+            '#displacy { width: ' + words.length * arrowSizes.width + unit + '; min-width: 100vw; overflow: visible; padding: 0; margin: 0; -webkit-user-select: none; -ms-user-select: none; -moz-user-select: none; user-select: none; min-height: 100vh; height: 100vh}', 
             '#displacy .words { display: flex; display: -webkit-flex; display: -ms-flexbox; display: -webkit-box; flex-flow: row nowrap; overflow: hidden; text-align: center; position: absolute; bottom: 25px; left: 0; min-width: ' + arrowSizes.width * words.length + unit + ' }',
             '#displacy .words .token { display: inline-block; width: ' + arrowSizes.width + unit + ' }',
             '#displacy .words .token .tag, #displacy .words .token .word { display: inline } ',

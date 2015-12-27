@@ -1,6 +1,6 @@
 (function() {
 
-    var baseurl = 'https://spacy.io/displacy/';
+    var baseurl = 'https://api.spacy.io/displacy/';
 
     var $ = new displaCy({
         api: 'http://ec2-54-205-46-210.compute-1.amazonaws.com/api/displacy/'
@@ -92,7 +92,7 @@
 
         _get('input').onkeydown = function(event) {
             if(event.keyCode == 13) {
-                annotate();
+                parse();
                 this.blur();
             }
         }
@@ -146,7 +146,7 @@
         var container = _get('version-string');
 
         if(container && version) {
-            container.appendChild(document.createTextNode('spaCy v' + version));
+            container.innerHTML = 'spaCy v' + version;
         }
     }
 

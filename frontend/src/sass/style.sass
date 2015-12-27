@@ -588,13 +588,17 @@ $switch-spacing: 5px
 		.dot-menu
 			display: block
 			background: transparent
-			margin: 0.375em 0 0 0
+			margin: 0.175em 0 0 0
 
 		li
 			@include spacing(0, 0 0.25em)
 			@include size($header-size)
+			background: $color-light
 			display: none
 			box-sizing: content-box
+
+			&:before
+				padding: 0.25em 0 0 0
 
 		&:hover li
 			display: block
@@ -618,5 +622,5 @@ $switch-spacing: 5px
 			padding: 0.25em
 
 	.dialog
-		width: 100%
+		width: 100% !important
 		padding: 1.25em
