@@ -32,7 +32,7 @@ class Parse(Model):
         self.focus = state.focus
         self.is_final = state.is_final
         self.stack = state.stack
-        self.arrows = self.arrows
+        self.arrows = state.arrows
 
 
 class Word(Model):
