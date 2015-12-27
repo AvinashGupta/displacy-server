@@ -14,7 +14,7 @@ displaCy.prototype = {
             mode: (options.mode) ? options.mode : this.defaults.mode,
             text: options.text || this.defaults.text,
             history: options.history || '',
-            params: options.params || this.defaults.params
+            edits: options.edits || this.defaults.edits
         }
 
         if(onStart && typeof onStart === 'function') onStart();
@@ -28,8 +28,13 @@ displaCy.prototype = {
                 var state = this.parseResult(JSON.parse(xhr.responseText));
 
                 if(this.request.mode == 'manual') this.displayAnnotation(state, function(key) {
-                        this.run(this.getState('manual', this.request.text, this.request.history + key + ','), onStart, onSuccess, onFinal);
-                    });
+                    this.run({
+                        mode: 'manual',
+                        text: this.request.text,
+                        history: this.request.history + key + ',',
+                        edits: this.getEdits()
+                    }, onStart, onSuccess, onFinal);
+                });
 
                 else this.displayParse(state);
 
@@ -43,25 +48,27 @@ displaCy.prototype = {
         xhr.send(JSON.stringify({ 
             text: this.request.text,
             history: this.request.history,
-            client_state: this.request.params
+            edits: this.request.edits
         }));
     },
 
     parseResult: function(result) {
+        this.versionString = result.version;
+
         return {
             words: result.parse.words,
-            arrows: result.parse.states[0].arrows,
-            stack: result.parse.states[0].stack,
-            focus: result.parse.states[0].focus,
-            is_final: result.parse.states[0].is_final,
+            arrows: result.parse.arrows,
+            stack: result.parse.stack,
+            focus: result.parse.focus,
+            is_final: result.parse.is_final,
             actions: result.actions || {},
-            notes: result.client_state.notes || [],
+            notes: result.edits.notes || [],
             edits: {
-                words: result.client_state.words,
-                tags: result.client_state.tags,
-                labels: result.client_state.labels
+                words: result.edits.words,
+                tags: result.edits.tags,
+                labels: result.edits.labels
             }
-        }
+        } 
     },
 
     displayParse: function(state) {
@@ -276,15 +283,6 @@ displaCy.prototype = {
         });
 
         return buttons;
-    },
-
-    getState: function(mode, text, history) {
-        return {
-            mode: mode,
-            text: text, 
-            history: history || '', 
-            params: this.getEdits()
-        }
     },
 
     displayActionButtons: function(buttons) {
@@ -658,7 +656,7 @@ var DEFAULTS = {
         left: 20,
         top: 100
     },
-    params: {
+    edits: {
         words: {},
         tags: {},
         labels: {},

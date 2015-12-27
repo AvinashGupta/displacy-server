@@ -7,14 +7,22 @@
     });
 
     document.addEventListener('DOMContentLoaded', function() {
-        showModal('intro');
         addUIListeners();
 
-        if(location.search.split('?')[1]) {
-            loadFromShareLink(location.search.split('?')[1], function(response) {
-                if(response.mode == 'manual') annotate(response);
-                else parse(response);
-            });
+        var locationString = location.search.split('?')[1];
+
+        if(locationString) {
+            if(locationString == 'welcome') {
+                showModal('intro');
+                parse();
+            }
+
+            else {
+                loadFromShareLink(locationString, function(response) {
+                    if(response.mode == 'manual') annotate(response);
+                    else parse(response);
+                });
+            }
         }
 
         else parse();
@@ -38,8 +46,6 @@
     }
 
     function getShareLink(callback) {
-        var state = $.getState($.request.mode, $.request.text, $.request.history);
-
         var xhr = new XMLHttpRequest();
         xhr.open('POST', $.api + 'save/', true);
         xhr.setRequestHeader('Content-type', 'text/plain');
@@ -49,10 +55,15 @@
             }
         }
 
-        xhr.send(JSON.stringify(state));
+        xhr.send(JSON.stringify({
+            mode: $.request.mode,
+            text: $.request.text,
+            history: $.request.history,
+            edits: $.getEdits()
+        }));
     }
 
-    function loadFromShareLink(token, callback) {
+    function loadFromShareLink(token, callback) {        
         var xhr = new XMLHttpRequest();
         xhr.open('GET', $.api + 'load/' + token, true);
         xhr.onload = function() {
@@ -104,6 +115,7 @@
 
     function onSuccess() {
         loading(false);
+        displayVersionString($.versionString);
     }
 
     function onFinal() {
@@ -128,6 +140,14 @@
             _get('share-link').value = link;
             showModal('share');
         });
+    }
+
+    function displayVersionString(version) {
+        var container = _get('version-string');
+
+        if(container && version) {
+            container.appendChild(document.createTextNode('spaCy v' + version));
+        }
     }
 
     function playSound(sound) {

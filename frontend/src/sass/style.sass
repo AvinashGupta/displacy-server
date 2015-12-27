@@ -116,6 +116,10 @@ a
 	cursor: pointer
 	text-decoration: none
 
+.fine-print
+	font-size: 0.9em
+	font-style: italic
+
 button
 	cursor: pointer
 
@@ -297,6 +301,22 @@ body > header
 
 	&.exit
 		@include vendor(animation, slideOutLeft 0.25s ease-in-out)
+
+// Easter Egg
+
+.easteregg
+	@include spacing(2.5em 0, 0)
+	@include colors($color-light, $hidden)
+	border: 0
+
+	&:before
+		@extend %colors
+
+.panic-button
+	@extend %form-field
+	@extend %colors
+	@include position(fixed, top, left, $header-size*2, 2em)
+
 
 
 // displaCy Settings
@@ -548,23 +568,6 @@ $switch-spacing: 5px
 			background: $color-dark
 			bottom: 0
 			border-radius: $switch-size/2
-
-
-// Easter Egg
-
-.easteregg
-	@include spacing(1em 0, 0)
-	@include colors($color-light, $hidden)
-	border: 0
-
-	&:before
-		@extend %colors
-
-.panic-button
-	@extend %form-field
-	@extend %colors
-	@include position(fixed, top, left, $header-size*2, 2em)
-
 
 // Media Queries
 
