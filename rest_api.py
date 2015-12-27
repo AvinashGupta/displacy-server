@@ -27,10 +27,10 @@ class Endpoint(object):
         resp.status = falcon.HTTP_200
 
     def set_body(self, resp, parse):
-        try:
+        if hasattr(parse, 'to_json'):
             resp.body = json.dumps(parse.to_json(), indent=4)
-        except AttributeError:
-            resp.body = str(parse)
+        else:
+            resp.body = json.dumps(parse)
 
     def on_get(self, req, resp, text="", actions=""):
         if not isinstance(text, unicode):
@@ -45,12 +45,14 @@ class Endpoint(object):
         self.set_header(resp)
 
 
-class ServeLoad(Endpoint):
+class ServeLoad(object):
     def on_get(self, req, resp, key='0'):
         global db
         parse = db.get(int(key), {})
-        self.set_body(resp, parse)
-        self.set_header(resp)
+        resp.body = json.dumps(parse, indent=4)
+        resp.content_type = b'text/string'
+        resp.append_header(b'Access-Control-Allow-Origin', b"*")
+        resp.status = falcon.HTTP_200
 
 
 def handle_save(parse):
@@ -66,7 +68,7 @@ app = falcon.API()
 app.add_route('/api/displacy/parse/', Endpoint(handle_parse))
 app.add_route('/api/displacy/manual/', Endpoint(handle_manual))
 app.add_route('/api/displacy/save/', Endpoint(handle_save))
-app.add_route('/api/displacy/load/{key}', ServeLoad(lambda json_data: json_data))
+app.add_route('/api/displacy/load/{key}', ServeLoad())
 
 
 if __name__ == '__main__':
