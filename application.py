@@ -84,7 +84,7 @@ class StaticFile(object):
 
         content_type = mimetypes.guess_type(full_path)[0] or 'application/octet-stream'
         resp.content_type = content_type.encode('ascii')
-        resp.body = io.open(full_path, 'rb').read()
+        resp.stream = io.open(full_path, 'rb')
 
 
 class Root(object):
