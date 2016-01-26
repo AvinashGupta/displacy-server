@@ -1,4 +1,5 @@
 from collections import defaultdict
+from spacy.about import __version__
 
 
 class Model(object):
@@ -19,7 +20,7 @@ class Model(object):
         self.parse = Parse(words, parse_state)
         self.actions = actions
         self.edits = edits
-        self.version = '0.99' # TODO: Replace when spacy.about is available
+        self.version = __version__
 
     def to_json(self):
         return {name: _as_json(value) for name, value in self.__dict__.items()
