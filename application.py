@@ -7,9 +7,9 @@ import json
 import os
 import io
 
-import newrelic.agent
-newrelic.agent.initialize('newrelic.ini',
-    os.environ.get('ENVIRONMENT', 'development'))
+# import newrelic.agent
+# newrelic.agent.initialize('newrelic.ini',
+#     os.environ.get('ENVIRONMENT', 'development'))
 
 import falcon
 
@@ -109,5 +109,5 @@ if __name__ == '__main__':
     from wsgiref import simple_server
     httpd = simple_server.make_server('127.0.0.1', 8000, application)
     httpd.serve_forever()
-else:
-    application = newrelic.agent.WSGIApplicationWrapper(application)
+# else:
+#     application = newrelic.agent.WSGIApplicationWrapper(application)
