@@ -3,7 +3,7 @@
     var baseurl = 'https://api.spacy.io/displacy/';
 
     var $ = new displaCy({
-        api: 'http://ec2-54-205-46-210.compute-1.amazonaws.com/api/displacy/'
+        api: '/api/displacy/'
     });
 
     document.addEventListener('DOMContentLoaded', function() {
