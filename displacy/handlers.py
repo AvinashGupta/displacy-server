@@ -159,7 +159,7 @@ def handle_manual(json_data):
     popped = {}
     if prev_top not in state.stack:
         popped = {prev_top: True}
-    if state.stack and max(state.stack) > prev_top:
+    if state.stack and max(state.stack) > (prev_top or -1):
         pushed = {max(state.stack): True}
     return models.Model(tokens, models.State(state.heads, state.deps,
                                               state.stack, state.queue, diffs),
