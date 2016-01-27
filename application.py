@@ -30,19 +30,19 @@ def endpoint(make_model):
     return resp
 
 
-@app.route('/api/displacy/parse/', methods=['GET', 'POST'])
+@application.route('/api/displacy/parse/', methods=['GET', 'POST'])
 def parse_endpoint():
     return endpoint(handle_parse)
 
 
-@app.route('/api/displacy/manual/', methods=['GET', 'POST'])
+@application.route('/api/displacy/manual/', methods=['GET', 'POST'])
 def manual_endpoint():
     return endpoint(handle_manual)
 
 
-@app.route('/')
-@app.route('/displacy/')
-@app.route('/displacy')
+@application.route('/')
+@application.route('/displacy/')
+@application.route('/displacy')
 def root_endpoint():
     return redirect('/displacy/index.html?' + urlencode(request.args))
 
