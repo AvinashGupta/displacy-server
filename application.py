@@ -15,7 +15,7 @@ from flask import Flask, request, jsonify, redirect
 from displacy.handlers import handle_parse, handle_manual
 
 
-app = Flask(__name__, static_url_path='/displacy')
+application = Flask(__name__, static_url_path='/displacy')
 
 
 def endpoint(make_model):
@@ -47,7 +47,7 @@ def root_endpoint():
     return redirect('/displacy/index.html?' + urlencode(request.args))
 
 
-app.run(debug=os.environ.get('DEBUG', 'True') != 'False')
+application.run(debug=os.environ.get('DEBUG', 'True') != 'False')
 
 
 # code below needs to be converted to flask
