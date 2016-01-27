@@ -143,12 +143,12 @@ def handle_manual(json_data):
 
     prev_deps = []
     prev_heads = []
-    prev_top = None
+    prev_top = -1
     with NLU.parser.step_through(tokens) as state:
         for action in history:
             prev_deps = list(state.deps)
             prev_heads = list(state.heads)
-            prev_top = max(state.stack) if state.stack else None
+            prev_top = max(state.stack) if state.stack else -1
             state.transition(action)
 
     diffs = _diff_deps(prev_deps, prev_heads, state.deps, state.heads)
@@ -159,7 +159,7 @@ def handle_manual(json_data):
     popped = {}
     if prev_top not in state.stack:
         popped = {prev_top: True}
-    if state.stack and max(state.stack) > (prev_top or -1):
+    if state.stack and max(state.stack) > prev_top:
         pushed = {max(state.stack): True}
     return models.Model(tokens, models.State(state.heads, state.deps,
                                               state.stack, state.queue, diffs),
