@@ -1,53 +1,10 @@
-#!/usr/bin/env python
-from __future__ import unicode_literals, print_function
 import os
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
 
-import newrelic.agent
-newrelic.agent.initialize('newrelic.ini',
-    os.environ.get('ENVIRONMENT', 'development'))
-
-from flask import Flask, request, jsonify, redirect
-
-from displacy.handlers import handle_parse, handle_manual
+from displacy import app as application
 
 
-application = Flask(__name__, static_url_path='/displacy')
-
-
-def endpoint(make_model):
-    if request.method == 'POST':
-        model = make_model(request.json)
-    else:
-        model = make_model({'text': request.args.get('text', ''),
-                            'actions': request.args.get('actions', '')})
-
-    resp = jsonify(model.to_json())
-    resp.headers['Access-Control-Allow-Origin'] = '*'
-    return resp
-
-
-@application.route('/api/displacy/parse/', methods=['GET', 'POST'])
-def parse_endpoint():
-    return endpoint(handle_parse)
-
-
-@application.route('/api/displacy/manual/', methods=['GET', 'POST'])
-def manual_endpoint():
-    return endpoint(handle_manual)
-
-
-@application.route('/')
-@application.route('/displacy/')
-@application.route('/displacy')
-def root_endpoint():
-    return redirect('/displacy/index.html?' + urlencode(request.args))
-
-
-application.run(debug=os.environ.get('DEBUG', 'True') != 'False')
+if __name__ == '__main__':
+    application.run()
 
 
 # code below needs to be converted to flask
