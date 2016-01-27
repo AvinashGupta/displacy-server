@@ -21,7 +21,7 @@ displaCy.prototype = {
 
         var xhr = new XMLHttpRequest();
         xhr.open('POST', this.api + this.request.mode + '/', true);
-        xhr.setRequestHeader('Content-type', 'text/plain');
+        xhr.setRequestHeader('Content-type', 'application/json');
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
 
