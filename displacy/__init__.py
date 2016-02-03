@@ -41,6 +41,17 @@ def manual_endpoint():
     return endpoint(handle_manual)
 
 
+@app.route('/health')
+def health():
+    if not handle_parse({'text': 'test'}):
+        abort(503)  # index service not available
+    if not handle_manual({'text': 'test'}):
+        abort(503)  # action service not available
+    return jsonify({
+        'status': 'ok'
+    })
+
+
 @app.route('/')
 @app.route('/displacy/')
 @app.route('/displacy')
