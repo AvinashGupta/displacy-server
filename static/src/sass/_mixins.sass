@@ -1,51 +1,51 @@
 @mixin colors($background, $foreground)
-	background-color: $background
-	color: $foreground
+  background-color: $background
+  color: $foreground
 
 @mixin vendor($name, $argument)
-	-webkit-#{$name}: $argument
-	-ms-#{$name}: $argument
-	-moz-#{$name}: $argument
-	#{$name}: $argument
+  -webkit-#{$name}: $argument
+  -ms-#{$name}: $argument
+  -moz-#{$name}: $argument
+  #{$name}: $argument
 
 @mixin position($type, $position, $direction, $positionval, $directionval)
-	position: #{$type}
-	#{$position}: $positionval
-	#{$direction}: $directionval
+  position: #{$type}
+  #{$position}: $positionval
+  #{$direction}: $directionval
 
 @mixin spacing($margin, $padding)
-	margin: $margin
-	padding: $padding
+  margin: $margin
+  padding: $padding
 
 @mixin size($width, $height: $width)
-	width: $width
-	height: $height
+  width: $width
+  height: $height
 
 @mixin animation($params)
-	animation: $params
-	-webkit-animation: $params
+  animation: $params
+  -webkit-animation: $params
 
 @mixin flex($param, $value)
-	@if $param == "flex"
-		flex: $value
-		-webkit-flex: $value
+  @if $param == "flex"
+    flex: $value
+    -webkit-flex: $value
 
-	@else
-		flex-#{$param}: $value
-		-webkit-flex-#{$param}: $value
+  @else
+    flex-#{$param}: $value
+    -webkit-flex-#{$param}: $value
 
 @mixin order($elements)
-	@each $element in $elements
-		$i: index($elements, $element)
-		
-		#{$element}
-			order: $i
+  @each $element in $elements
+    $i: index($elements, $element)
+    
+    #{$element}
+      order: $i
 
 @mixin icon($name, $size: auto)
-	$icon: map-get($icons, $name)
-	@include size($size)
+  $icon: map-get($icons, $name)
+  @include size($size)
 
-	&:before
-		@extend %icon
-		content: $icon
-		font-size: $size
+  &:before
+    @extend %icon
+    content: $icon
+    font-size: $size
