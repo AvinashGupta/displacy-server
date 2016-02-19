@@ -13,6 +13,7 @@ semver==2.2.1
 six==1.10.0
 spacy==0.100.2
 sputnik==0.8.2
+sqlitedict==1.4.0
 text-unidecode==1.0
 thinc==4.2.0
 ujson==1.35

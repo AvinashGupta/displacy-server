@@ -1,5 +1,6 @@
 from __future__ import unicode_literals, print_function
 import os
+import json
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -9,7 +10,8 @@ import newrelic.agent
 newrelic.agent.initialize('newrelic.ini',
     os.environ.get('ENVIRONMENT', 'development'))
 
-from flask import Flask, request, jsonify, redirect
+from flask import Flask, Response, request, jsonify, redirect
+import sqlitedict
 
 from .handlers import handle_parse, handle_manual
 
@@ -19,34 +21,50 @@ app.config['DEBUG'] = os.environ.get('DEBUG', 'True') != 'False'
 app = newrelic.agent.WSGIApplicationWrapper(app)
 
 
-def endpoint(make_model):
-    if request.method == 'POST':
-        model = make_model(request.json)
-    else:
-        model = make_model({'text': request.args.get('text', ''),
-                            'actions': request.args.get('actions', '')})
+db = sqlitedict.SqliteDict('tmp.db', autocommit=True)
 
-    resp = jsonify(model.to_json())
+
+def set_headers(resp):
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
 
 
-@app.route('/api/displacy/parse/', methods=['GET', 'POST'])
+@app.route('/api/displacy/parse/', methods=['POST'])
 def parse_endpoint():
-    return endpoint(handle_parse)
+    model = handle_parse(request.json)
+    resp = jsonify(model.to_json())
+    return set_headers(resp)
 
 
-@app.route('/api/displacy/manual/', methods=['GET', 'POST'])
+@app.route('/api/displacy/manual/', methods=['POST'])
 def manual_endpoint():
-    return endpoint(handle_manual)
+    model = handle_manual(request.json)
+    resp = jsonify(model.to_json())
+    return set_headers(resp)
+
+
+@app.route('/api/displacy/save/', methods=['POST'])
+def save_endpoint():
+    parse = json.dumps(request.json)
+    key = abs(hash(parse))
+    db[key] = parse
+    resp = Response(str(key), mimetype='text/plain')
+    return set_headers(resp)
+
+
+@app.route('/api/displacy/load/<key>')
+def load_endpoint(key='0'):
+    parse = json.loads(db.get(int(key), '{}'))
+    resp = jsonify(parse)
+    return set_headers(resp)
 
 
 @app.route('/health')
 def health():
     if not handle_parse({'text': 'test'}):
-        abort(503)  # index service not available
+        abort(503)
     if not handle_manual({'text': 'test'}):
-        abort(503)  # action service not available
+        abort(503)
     return jsonify({
         'status': 'ok'
     })

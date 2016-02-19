@@ -48,7 +48,7 @@
     function getShareLink(callback) {
         var xhr = new XMLHttpRequest();
         xhr.open('POST', $.api + 'save/', true);
-        xhr.setRequestHeader('Content-type', 'text/plain');
+        xhr.setRequestHeader('Content-type', 'application/json');
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 callback(baseurl + '?' + xhr.responseText.toLowerCase());
@@ -80,7 +80,7 @@
         _get('button-manual').addEventListener('click', function() { annotate(); });
         _get('button-note').addEventListener('click', function() { $.displayNote(); });
         _get('button-help').addEventListener('click', function() { showModal('help'); });
-        //_get('button-share').addEventListener('click', displayShareLink);
+        _get('button-share').addEventListener('click', displayShareLink);
         _get('nav-icon').addEventListener('click', toggleSidenav);
         _get('displacy').addEventListener('mousedown', hideSidenav);
         _get('easteregg').addEventListener('click', easteregg);
