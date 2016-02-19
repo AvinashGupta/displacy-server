@@ -1,6 +1,6 @@
 (function() {
 
-    var baseurl = 'https://api.spacy.io/displacy/';
+    var baseurl = 'https://displacy.spacy.io/displacy/';
 
     var $ = new displaCy({
         api: '/api/displacy/'
