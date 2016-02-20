@@ -16,8 +16,9 @@ class Log(object):
             aws_secret_access_key=self.secret_access_key)
         self.table = self.conn.get_table(self.table_name)
 
-    def create(self, action, request):
+    def create(self, request):
         attrs = {
+            'path': request.path,
             'text': request.json['text'],
             'user_agent': request.user_agent.string,
             'remote_addr': request.access_route[0],  # support x-forwarded-for header

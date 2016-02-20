@@ -60,7 +60,7 @@ def set_headers(resp):
 
 @app.route('/api/displacy/parse/', methods=['POST'])
 def parse_endpoint():
-    current_app.logs.create('parse', request)
+    current_app.logs.create(request)
     model = handle_parse(request.json)
     resp = jsonify(model.to_json())
     return set_headers(resp)
