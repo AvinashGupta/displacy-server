@@ -1,4 +1,4 @@
-from displacy import app as application
+from displacy.server import app as application
 
 
 if __name__ == '__main__':

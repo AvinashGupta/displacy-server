@@ -3,7 +3,7 @@ import time
 import boto.dynamodb
 
 
-class Storage(object):
+class Key(object):
     def __init__(self, **kwargs):
         self.access_key_id = kwargs.pop('access_key_id')
         self.secret_access_key = kwargs.pop('secret_access_key')
