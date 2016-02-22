@@ -2,8 +2,10 @@ boto==2.39.0
 cloudpickle==0.1.1
 cymem==1.30
 Flask==0.10.1
+Flask-Limiter==0.9.1
 itsdangerous==0.24
 Jinja2==2.8
+limits==1.1
 MarkupSafe==0.23
 murmurhash==0.26.0
 newrelic==2.60.0.46

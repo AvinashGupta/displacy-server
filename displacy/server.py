@@ -11,6 +11,7 @@ newrelic.agent.initialize('newrelic.ini',
     os.environ.get('ENVIRONMENT', 'development'))
 
 from flask import Flask, Response, request, jsonify, redirect, current_app, abort
+from flask_limiter import Limiter
 
 from .handlers import handle_parse, handle_manual
 from .key import Key
@@ -51,6 +52,7 @@ class Server(Flask):
 
 app = newrelic.agent.WSGIApplicationWrapper(Server(
     __name__, static_url_path='/displacy', static_folder='../static'))
+limiter = Limiter(app, headers_enabled=True, strategy='moving-window')
 
 
 def set_headers(resp):
@@ -59,6 +61,7 @@ def set_headers(resp):
 
 
 @app.route('/api/displacy/parse/', methods=['POST'])
+@limiter.limit('200/day')
 def parse_endpoint():
     current_app.logs.create(request)
     model = handle_parse(request.json)
