@@ -10,7 +10,7 @@ import newrelic.agent
 newrelic.agent.initialize('newrelic.ini',
     os.environ.get('ENVIRONMENT', 'development'))
 
-from flask import Flask, Response, request, jsonify, redirect, current_app, abort
+from flask import Flask, Response, request, jsonify, current_app, abort, render_template
 from flask_limiter import Limiter
 
 from .handlers import handle_parse, handle_manual
@@ -51,7 +51,8 @@ class Server(Flask):
 
 
 app = newrelic.agent.WSGIApplicationWrapper(Server(
-    __name__, static_url_path='/displacy', static_folder='../static'))
+    __name__, static_url_path='/static', static_folder='../static',
+    template_folder='../static'))
 limiter = Limiter(app, headers_enabled=True, strategy='moving-window')
 
 
@@ -60,7 +61,7 @@ def set_headers(resp):
     return resp
 
 
-@app.route('/api/displacy/parse/', methods=['POST'])
+@app.route('/parse', methods=['POST'])
 @limiter.limit('200/day')
 def parse_endpoint():
     current_app.logs.create(request)
@@ -69,28 +70,31 @@ def parse_endpoint():
     return set_headers(resp)
 
 
-@app.route('/api/displacy/manual/', methods=['POST'])
+@app.route('/manual', methods=['POST'])
 def manual_endpoint():
     model = handle_manual(request.json)
     resp = jsonify(model.to_json())
     return set_headers(resp)
 
 
-@app.route('/api/displacy/save/', methods=['POST'])
+@app.route('/save', methods=['POST'])
 def save_endpoint():
     parse = json.dumps(request.json)
     key = abs(hash(parse))
     current_app.keys.put(key, parse)
-    resp = Response(str(key), mimetype='text/plain')
+    resp = jsonify({'key': key})
     return set_headers(resp)
 
 
-@app.route('/api/displacy/load/<key>')
-def load_endpoint(key='0'):
+@app.route('/load')
+def load_endpoint():
+    key = request.args.get('key')
+    if not key:
+        abort(400)
     parse = current_app.keys.get(key)
     if not parse:
         abort(404)
-    resp = jsonify(json.loads(parse))  # ensure it's json?
+    resp = jsonify(json.loads(parse) or {})
     return set_headers(resp)
 
 
@@ -110,7 +114,7 @@ def health():
 
 
 @app.route('/')
-@app.route('/displacy/')
-@app.route('/displacy')
 def root_endpoint():
-    return redirect('/displacy/index.html?' + urlencode(request.args))
+    return render_template('index.html',
+        args=request.args,
+        environment=current_app.config['ENVIRONMENT'])
