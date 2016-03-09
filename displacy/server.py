@@ -12,6 +12,7 @@ newrelic.agent.initialize('newrelic.ini',
 
 from flask import Flask, Response, request, jsonify, current_app, abort, render_template
 from flask_limiter import Limiter
+from flask.ext.cors import CORS
 
 from .handlers import handle_parse, handle_manual
 from .key import Key
@@ -58,11 +59,7 @@ app = newrelic.agent.WSGIApplicationWrapper(Server(
     __name__, static_url_path='/static', static_folder='../static',
     template_folder='../static'))
 limiter = Limiter(app, headers_enabled=True, strategy='moving-window')
-
-
-def set_headers(resp):
-    resp.headers['Access-Control-Allow-Origin'] = '*'
-    return resp
+CORS(app)
 
 
 @app.route('/parse', methods=['POST'])
@@ -70,15 +67,13 @@ def set_headers(resp):
 def parse_endpoint():
     current_app.logs.append(request)
     model = handle_parse(request.json)
-    resp = jsonify(model.to_json())
-    return set_headers(resp)
+    return jsonify(model.to_json())
 
 
 @app.route('/manual', methods=['POST'])
 def manual_endpoint():
     model = handle_manual(request.json)
-    resp = jsonify(model.to_json())
-    return set_headers(resp)
+    return jsonify(model.to_json())
 
 
 @app.route('/save', methods=['POST'])
@@ -86,11 +81,10 @@ def save_endpoint():
     parse = json.dumps(request.json)
     key = abs(hash(parse))
     current_app.keys[int(key)] = parse
-    resp = jsonify({'key': key})
-    return set_headers(resp)
+    return jsonify({'key': key})
 
 
-@app.route('/load')
+@app.route('/load', methods=['GET'])
 def load_endpoint():
     key = request.args.get('key')
     if not key:
@@ -98,8 +92,7 @@ def load_endpoint():
     parse = current_app.keys.get(int(key))
     if not parse:
         abort(404)
-    resp = jsonify(json.loads(parse) or {})
-    return set_headers(resp)
+    return jsonify(json.loads(parse) or {})
 
 
 @app.route('/health')
