@@ -26,8 +26,8 @@ class Server(Flask):
         util.set_config(self, 'ENVIRONMENT', 'development')
         util.set_config(self, 'DEBUG', True)
 
-        util.set_config(self, 'AWS_ACCESS_KEY_ID')
-        util.set_config(self, 'AWS_SECRET_ACCESS_KEY')
+        util.set_config(self, 'AWS_ACCESS_KEY_ID', False)
+        util.set_config(self, 'AWS_SECRET_ACCESS_KEY', False)
         util.set_config(self, 'AWS_REGION', 'eu-central-1')
 
         if self.config['ENVIRONMENT'] in ['production']:
@@ -37,17 +37,21 @@ class Server(Flask):
             util.set_config(self, 'KEYS_TABLE', 'displacy-keys-dev')
             util.set_config(self, 'LOGS_TABLE', 'displacy-logs-dev')
 
-        self.keys = Key(
-            access_key_id=self.config['AWS_ACCESS_KEY_ID'],
-            secret_access_key=self.config['AWS_SECRET_ACCESS_KEY'],
-            region=self.config['AWS_REGION'],
-            table=self.config['KEYS_TABLE'])
+        if self.config['AWS_ACCESS_KEY_ID']:
+            self.keys = Key(
+                access_key_id=self.config['AWS_ACCESS_KEY_ID'],
+                secret_access_key=self.config['AWS_SECRET_ACCESS_KEY'],
+                region=self.config['AWS_REGION'],
+                table=self.config['KEYS_TABLE'])
 
-        self.logs = Log(
-            access_key_id=self.config['AWS_ACCESS_KEY_ID'],
-            secret_access_key=self.config['AWS_SECRET_ACCESS_KEY'],
-            region=self.config['AWS_REGION'],
-            table=self.config['LOGS_TABLE'])
+            self.logs = Log(
+                access_key_id=self.config['AWS_ACCESS_KEY_ID'],
+                secret_access_key=self.config['AWS_SECRET_ACCESS_KEY'],
+                region=self.config['AWS_REGION'],
+                table=self.config['LOGS_TABLE'])
+        else:
+            self.keys = {}
+            self.logs = []
 
 
 app = newrelic.agent.WSGIApplicationWrapper(Server(
@@ -64,7 +68,7 @@ def set_headers(resp):
 @app.route('/parse', methods=['POST'])
 @limiter.limit('200/day')
 def parse_endpoint():
-    current_app.logs.create(request)
+    current_app.logs.append(request)
     model = handle_parse(request.json)
     resp = jsonify(model.to_json())
     return set_headers(resp)
@@ -81,7 +85,7 @@ def manual_endpoint():
 def save_endpoint():
     parse = json.dumps(request.json)
     key = abs(hash(parse))
-    current_app.keys.put(key, parse)
+    current_app.keys[int(key)] = parse
     resp = jsonify({'key': key})
     return set_headers(resp)
 
@@ -91,7 +95,7 @@ def load_endpoint():
     key = request.args.get('key')
     if not key:
         abort(400)
-    parse = current_app.keys.get(key)
+    parse = current_app.keys.get(int(key))
     if not parse:
         abort(404)
     resp = jsonify(json.loads(parse) or {})

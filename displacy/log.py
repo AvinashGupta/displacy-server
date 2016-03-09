@@ -16,7 +16,7 @@ class Log(object):
             aws_secret_access_key=self.secret_access_key)
         self.table = self.conn.get_table(self.table_name)
 
-    def create(self, request):
+    def append(self, request):
         attrs = {
             'path': request.path,
             'text': request.json['text'],

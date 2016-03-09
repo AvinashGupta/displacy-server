@@ -15,7 +15,7 @@ class Key(object):
             aws_secret_access_key=self.secret_access_key)
         self.table = self.conn.get_table(self.table_name)
 
-    def put(self, key, value):
+    def __setitem__(self, key, value):
         attrs = {
             'value': value,
             'created_at': int(time.time())

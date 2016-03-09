@@ -2,7 +2,10 @@ import os
 
 
 def hide(value):
-    return '*' * len(value)
+    if isinstance(value, bool):
+        return value
+    else:
+        return '*' * len(value)
 
 
 def set_config(app, key, value=None, cast=str):
@@ -11,7 +14,7 @@ def set_config(app, key, value=None, cast=str):
         raise Exception('environment variable missing: %s' % key)
 
     if isinstance(value, bool) or cast == bool:
-        cast = lambda x: x == True or x.lower() == 'true'
+        cast = lambda x: x is True or str(x).lower() == 'true' or x
 
     env_value = cast(env_value)
     app.config[key] = env_value
