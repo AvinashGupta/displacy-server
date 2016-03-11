@@ -10,8 +10,9 @@ import newrelic.agent
 newrelic.agent.initialize('newrelic.ini',
     os.environ.get('ENVIRONMENT', 'development'))
 
-from flask import Flask, Response, request, jsonify, current_app, abort, render_template
+from flask import Flask, Response, request, jsonify, current_app, abort, render_template, send_from_directory
 from flask_limiter import Limiter
+from werkzeug.routing import BaseConverter
 from flask.ext.cors import CORS
 
 from .handlers import handle_parse, handle_manual
@@ -26,6 +27,7 @@ class Server(Flask):
 
         util.set_config(self, 'ENVIRONMENT', 'development')
         util.set_config(self, 'DEBUG', True)
+        util.set_config(self, 'API_URL', '/')
 
         util.set_config(self, 'AWS_ACCESS_KEY_ID', False)
         util.set_config(self, 'AWS_SECRET_ACCESS_KEY', False)
@@ -60,6 +62,17 @@ app = newrelic.agent.WSGIApplicationWrapper(Server(
     template_folder='../static'))
 limiter = Limiter(app, headers_enabled=True, strategy='moving-window')
 CORS(app)
+
+
+class RegexConverter(BaseConverter):
+    def __init__(self, url_map, *items):
+        super(RegexConverter, self).__init__(url_map)
+        self.regex = items[0]
+
+
+app.url_map.converters['regex'] = RegexConverter
+def serve_dir(path, filename):
+    return send_from_directory(os.path.join(app.static_folder, path), filename)
 
 
 @app.route('/parse', methods=['POST'])
@@ -110,8 +123,31 @@ def health():
     })
 
 
+@app.route('/css/<path:path>')
+def handle_css(path):
+    return serve_dir('css', path)
+
+
+@app.route('/fonts/<path:path>')
+def handle_fonts(path):
+    return serve_dir('fonts', path)
+
+
+@app.route('/img/<path:path>')
+def handle_img(path):
+    return serve_dir('img', path)
+
+
+@app.route('/js/<path:path>')
+def handle_js(path):
+    return serve_dir('js', path)
+
+
+@app.route('/sounds/<path:path>')
+def handle_sounds(path):
+    return serve_dir('sounds', path)
+
+
 @app.route('/')
-def root_endpoint():
-    return render_template('index.html',
-        args=request.args,
-        environment=current_app.config['ENVIRONMENT'])
+def handle_root():
+    return render_template('index.html', api_url='/')
