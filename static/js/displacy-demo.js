@@ -3,35 +3,33 @@
     var baseurl = 'https://displacy.spacy.io/displacy/';
 
     var $ = new displaCy({
-        api: '/api/displacy/'
+        api: api
     });
 
     document.addEventListener('DOMContentLoaded', function() {
+        _get('input').focus();
         addUIListeners();
 
-        var locationString = location.search.split('?')[1];
+        var share = getQueryVar('share');
+        var modal = getQueryVar('modal');
 
-        if(locationString) {
-            if(locationString == 'welcome') {
-                showModal('intro');
-                parse();
-            }
+        if(modal) showModal(modal);
 
-            else {
-                loadFromShareLink(locationString, function(response) {
-                    if(response.mode == 'manual') annotate(response);
-                    else parse(response);
-                });
-            }
+        if(share) {
+            loadFromShareLink(share, function(response) {
+                if(response.mode == 'manual') annotate(response);
+                else parse(response);
+            });
         }
 
         else parse();
-    });
+
+    }, false);
 
     function parse(options) {
         $.run(options || {
             text: _get('input').value || $.defaults.text
-        }, onStart, onSuccess, onFinal);
+        }, onStart, onSuccess, onFinal, onErrors);
     }
 
     function annotate(options) {
@@ -42,7 +40,18 @@
             onFinal();
             playSound('bing.wav');
             displayToast('Your sentence is ready!');
-        });
+        }, onErrors);
+    }
+
+    function getQueryVar(variable) {
+       var query = window.location.search.substring(1);
+       var vars = query.split('&');
+
+       for(var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split('=');
+            if(pair[0] == variable) return pair[1];
+       }
+       return(false);
     }
 
     function getShareLink(callback) {
@@ -63,7 +72,7 @@
         }));
     }
 
-    function loadFromShareLink(token, callback) {        
+    function loadFromShareLink(token, callback) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', $.api + 'load/' + token, true);
         xhr.onload = function() {
@@ -78,7 +87,7 @@
     function addUIListeners() {
         _get('button-parse').addEventListener('click', function() { parse(); });
         _get('button-manual').addEventListener('click', function() { annotate(); });
-        _get('button-note').addEventListener('click', function() { $.displayNote(); });
+        //_get('button-note').addEventListener('click', function() { $.displayNote(); });
         _get('button-help').addEventListener('click', function() { showModal('help'); });
         _get('button-share').addEventListener('click', displayShareLink);
         _get('nav-icon').addEventListener('click', toggleSidenav);
@@ -120,6 +129,11 @@
 
     function onFinal() {
         document.documentElement.scrollLeft = document.body.scrollLeft = 0;
+    }
+
+    function onErrors() {
+        loading(false);
+        showModal('error');
     }
 
     function displayToast(text) {
@@ -166,15 +180,16 @@
             document.body.appendChild(_create('button', 'panic-button', 0, 0, 'Make it stop!', function() {
                 window.location.reload()
             }));
-        }, onFinal);
+        }, onFinal, onErrors);
     }
 
     function showModal(id) {
         var modal = _get(id);
-        if(!modal.classList.contains('active')) {
+        if(modal && !modal.classList.contains('active')) {
             _animate(modal, 'intro');
             modal.classList.add('active');
         }
+        else return false;
     }
 
     function hideModal(id) {

@@ -6,8 +6,8 @@ function displaCy(options) {
     this.container = document.getElementById(this.defaults.containerId);
 }
 
-displaCy.prototype = {    
-    run: function(options, onStart, onSuccess, onFinal) {
+displaCy.prototype = {
+    run: function(options, onStart, onSuccess, onFinal, onErrors) {
         var options = options || {};
 
         this.request = {
@@ -20,10 +20,10 @@ displaCy.prototype = {
         if(onStart && typeof onStart === 'function') onStart();
 
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', this.api + this.request.mode + '/', true);
+        xhr.open('POST', this.api + this.request.mode, true);
         xhr.setRequestHeader('Content-type', 'application/json');
         xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
+            if(xhr.readyState === 4 && xhr.status === 200) {
 
                 var state = this.parseResult(JSON.parse(xhr.responseText));
 
@@ -33,7 +33,7 @@ displaCy.prototype = {
                         text: this.request.text,
                         history: this.request.history + key + ',',
                         edits: this.getEdits()
-                    }, onStart, onSuccess, onFinal);
+                    }, onStart, onSuccess, onFinal, onErrors);
                 });
 
                 else this.displayParse(state);
@@ -43,9 +43,15 @@ displaCy.prototype = {
 
                 return state;
             }
+
         }.bind(this);
 
-        xhr.send(JSON.stringify({ 
+        xhr.onerror = function() {
+            xhr.abort();
+            if(onErrors && typeof onErrors === 'function') onErrors();
+        }
+
+        xhr.send(JSON.stringify({
             text: this.request.text,
             history: this.request.history,
             edits: this.request.edits
@@ -68,7 +74,7 @@ displaCy.prototype = {
                 tags: result.edits.tags,
                 labels: result.edits.labels
             }
-        } 
+        }
     },
 
     displayParse: function(state) {
@@ -95,7 +101,7 @@ displaCy.prototype = {
 
         var style = [
             '#displacy *, #displacy *:before ,#displacy *:after { box-sizing:border-box }',
-            '#displacy { width: ' + words.length * arrowSizes.width + unit + '; min-width: 100vw; overflow: visible; padding: 0; margin: 0; -webkit-user-select: none; -ms-user-select: none; -moz-user-select: none; user-select: none; min-height: 100vh; height: 100vh}', 
+            '#displacy { width: ' + words.length * arrowSizes.width + unit + '; min-width: 100vw; overflow: visible; padding: 0; margin: 0; -webkit-user-select: none; -ms-user-select: none; -moz-user-select: none; user-select: none; min-height: 100vh; height: 100vh}',
             '#displacy .words { display: flex; display: -webkit-flex; display: -ms-flexbox; display: -webkit-box; flex-flow: row nowrap; overflow: hidden; text-align: center; position: absolute; bottom: 25px; left: 0; min-width: ' + arrowSizes.width * words.length + unit + ' }',
             '#displacy .words .token { display: inline-block; width: ' + arrowSizes.width + unit + ' }',
             '#displacy .words .token .tag, #displacy .words .token .word { display: inline } ',
@@ -109,8 +115,8 @@ displaCy.prototype = {
             '#displacy .arrow:after { content: ""; width: 0; height: 0; position: absolute; bottom: -1px; border-top: ' + arrowSizes.head + unit + ' solid; border-left: ' + (arrowSizes.head/2) + unit + ' solid transparent; border-right: ' + (arrowSizes.head/2) + unit + ' solid transparent }',
             '#displacy .arrow.null { display: none }',
             '#displacy .arrow .label { position: absolute; top: 0; z-index: 90 }',
-            '#displacy .focus { position: absolute; top: 0; height: 100%; z-index: -1 }', 
-            '#displacy .words .in-focus { position: relative; z-index: 100 }', 
+            '#displacy .focus { position: absolute; top: 0; height: 100%; z-index: -1 }',
+            '#displacy .words .in-focus { position: relative; z-index: 100 }',
             '#displacy .divider { display: block }',
             '#displacy .note { visibility: visible; position: absolute; width: ' + this.defaults.notes.width + unit + '; height: ' + this.defaults.notes.height + unit + '; margin: 0; padding: 0; z-index: 100 !important; }',
             '#displacy .note header { cursor: move }',
@@ -163,7 +169,7 @@ displaCy.prototype = {
                     this.value = words[i].word;
                     if(this.classList.contains('edited')) this.classList.remove('edited');
                     self.resizeField(this);
-                    this.blur();                  
+                    this.blur();
                 }
 
                 else if(event.keyCode == 13) this.blur();
@@ -234,7 +240,7 @@ displaCy.prototype = {
             container.appendChild(level);
         }
 
-        this.container.appendChild(container);        
+        this.container.appendChild(container);
     },
 
     displaySelect: function(selected, classname, descriptions, is_edited) {
@@ -337,7 +343,7 @@ displaCy.prototype = {
 
             if(!closed) textarea.focus();
         }
-        
+
         var note = this.create('div', 'note');
 
         if(!closed) note.classList.add('active');
@@ -504,7 +510,7 @@ displaCy.prototype = {
         else if(levels == 3) sizes.height /= 1.75;
 
         else if(levels > 12) {
-            sizes.width *= 1.15; 
+            sizes.width *= 1.15;
             sizes.height *= 1.25;
         }
 
@@ -527,7 +533,7 @@ displaCy.prototype = {
         function move(event) {
             x_pos = document.all ? window.event.clientX : event.pageX;
             y_pos = document.all ? window.event.clientY : self.container.clientHeight - event.pageY;
-            
+
             if(selected) {
                 selected.style.left = (x_pos - x) + 'px';
                 selected.style.bottom = (y_pos - height) + 'px';
@@ -563,7 +569,7 @@ displaCy.prototype = {
             element.style.width = '0';
             offset = element.offsetWidth;
             element.scrollLeft = 1e+10;
-        
+
             var width = Math.max(element.scrollLeft + offset, element.scrollWidth - element.clientWidth);
             element.style.width = width + 'px';
         }
@@ -590,7 +596,7 @@ displaCy.prototype = {
 
         this.container.removeEventListener('input', listener);
         this.container.removeEventListener('change', listener);
-        
+
         for(var i = 0; i < elements.length; i++) {
             this.resizeField(elements[i]);
         }
@@ -609,7 +615,7 @@ displaCy.prototype = {
 
     clear: function(element) {
         if(typeof element === 'string') element = this.getById(element);
-        
+
         while (element.lastChild) {
             element.removeChild(element.lastChild);
         }
@@ -663,44 +669,44 @@ var DEFAULTS = {
         notes: {}
     },
     tags : {
-        "NO_TAG" : "w-notag", 
+        "NO_TAG" : "w-notag",
         "ADJ" : "w-adj",
         "ADP" : "w-adp",
-        "ADV" : "w-adv", 
+        "ADV" : "w-adv",
         "AUX" : "w-aux",
-        "CONJ" : "w-conj", 
+        "CONJ" : "w-conj",
         "DET" : "w-det",
         "INTJ" : "w-intj",
         "NOUN" : "w-noun",
         "NUM" : "w-num",
-        "PART" : "w-part", 
-        "PRON" : "w-pron", 
+        "PART" : "w-part",
+        "PRON" : "w-pron",
         "PROPN" : "w-propn",
         "PRT" : "w-prt",
         "PUNCT" : "w-punct",
         "SCONJ" : "w-sconj",
         "SYM" : "w-sym",
-        "VERB" : "w-verb", 
-        "X" : "w-x",  
-        "EOL" : "w-eol", 
+        "VERB" : "w-verb",
+        "X" : "w-x",
+        "EOL" : "w-eol",
         "SPACE" : "w-ent-space",
-        "PERSON" : "w-ent-pers", 
-        "NORP" : "w-ent-norp", 
-        "FACILITY" : "w-ent-facility", 
-        "ORG" : "w-ent-org", 
-        "GPE" : "w-ent-gpe", 
-        "LOC" : "w-ent-loc", 
-        "PRODUCT" : "w-ent-product", 
-        "EVENT" : "w-ent-event", 
-        "WORK_OF_ART" : "w-ent-workofart", 
-        "LAW" : "w-ent-law", 
-        "LANGUAGE" : "w-ent-language", 
-        "DATE" : "w-num-date", 
-        "TIME" : "w-num-time", 
-        "PERCENT" : "w-num-percent", 
-        "MONEY" : "w-num-money", 
-        "QUANTITY" : "w-num-quantity", 
-        "ORDINAL" : "w-num-ordinal", 
+        "PERSON" : "w-ent-pers",
+        "NORP" : "w-ent-norp",
+        "FACILITY" : "w-ent-facility",
+        "ORG" : "w-ent-org",
+        "GPE" : "w-ent-gpe",
+        "LOC" : "w-ent-loc",
+        "PRODUCT" : "w-ent-product",
+        "EVENT" : "w-ent-event",
+        "WORK_OF_ART" : "w-ent-workofart",
+        "LAW" : "w-ent-law",
+        "LANGUAGE" : "w-ent-language",
+        "DATE" : "w-num-date",
+        "TIME" : "w-num-time",
+        "PERCENT" : "w-num-percent",
+        "MONEY" : "w-num-money",
+        "QUANTITY" : "w-num-quantity",
+        "ORDINAL" : "w-num-ordinal",
         "CARDINAL" : "w-num-cardinal",
     },
     labels : {
@@ -749,9 +755,9 @@ var DEFAULTS = {
         "xcomp" : "t-xcomp"
     },
     classes : {
-        "on_stack" : "stack", 
-        "is_entity" : "w-ent", 
-        "low_prob" : "low-prob", 
+        "on_stack" : "stack",
+        "is_entity" : "w-ent",
+        "low_prob" : "low-prob",
         "in_focus" : "in-focus",
         "is_new" : 'is-new',
         "is_edit" : "edited",
