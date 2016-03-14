@@ -12,6 +12,7 @@
 
         var share = getQueryVar('share');
         var modal = getQueryVar('modal');
+        var oldVersion = checkBackwardsComp(getQueryVar('full'), getQueryVar('steps'), getQueryVar('manual'));
 
         if(modal) showModal(modal);
 
@@ -22,6 +23,7 @@
             });
         }
 
+        else if(oldVersion) oldVersion();
         else parse();
 
     }, false);
@@ -51,16 +53,29 @@
             var pair = vars[i].split('=');
             if(pair[0] == variable) return pair[1];
        }
-       return(false);
+       return false;
+    }
+
+    function checkBackwardsComp(full, steps, manual) {
+        if(full || steps || manual) {
+            return function() {
+                if(full) parse({ text: decodeURIComponent(full) });
+                else if(steps) annotate({ text: decodeURIComponent(steps), mode: 'manual' });
+                else if(manual) annotate({ text: decodeURIComponent(manual), mode: 'manual' });
+                else return false;
+            }
+        }
+
+        else return false;
     }
 
     function getShareLink(callback) {
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', $.api + 'save/', true);
+        xhr.open('POST', $.api + 'save', true);
         xhr.setRequestHeader('Content-type', 'application/json');
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                callback(baseurl + '?' + xhr.responseText.toLowerCase());
+                callback(baseurl + '?share=' + JSON.parse(xhr.responseText).key);
             }
         }
 
@@ -120,6 +135,7 @@
 
     function onStart() {
         loading(true);
+        if($.request.text != $.defaults.text) _get('input').value = $.request.text;
     }
 
     function onSuccess() {

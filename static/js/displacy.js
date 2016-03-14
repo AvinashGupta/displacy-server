@@ -18,6 +18,7 @@ displaCy.prototype = {
         }
 
         if(onStart && typeof onStart === 'function') onStart();
+        window.addEventListener('keyup', abortRequest); 
 
         var xhr = new XMLHttpRequest();
         xhr.open('POST', this.api + this.request.mode, true);
@@ -40,6 +41,7 @@ displaCy.prototype = {
 
                 if(onSuccess && typeof onSuccess === 'function') onSuccess();
                 if(state.is_final && onFinal && typeof onFinal === 'function') onFinal();
+                window.removeEventListener('keyup', abortRequest); 
 
                 return state;
             }
@@ -56,6 +58,14 @@ displaCy.prototype = {
             history: this.request.history,
             edits: this.request.edits
         }));
+
+        function abortRequest(event) {
+            if(event.keyCode == 27) {
+                xhr.abort();
+                if(onErrors && typeof onErrors === 'function') onErrors();
+                window.removeEventListener('keyup', abortRequest);
+            }
+        }
     },
 
     parseResult: function(result) {
