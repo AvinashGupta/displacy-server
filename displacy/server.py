@@ -28,6 +28,7 @@ class Server(Flask):
         util.set_config(self, 'ENVIRONMENT', 'development')
         util.set_config(self, 'DEBUG', True)
         util.set_config(self, 'API_URL', '/')
+        util.set_config(self, 'HOSTNAME', False)
 
         util.set_config(self, 'AWS_ACCESS_KEY_ID', False)
         util.set_config(self, 'AWS_SECRET_ACCESS_KEY', False)
@@ -151,4 +152,6 @@ def handle_sounds(path):
 
 @app.route('/')
 def handle_root():
-    return render_template('index.html', api_url='/')
+    return render_template('index.html',
+        api_url='/',
+        hostname=current_app.config['HOSTNAME'] or '')
