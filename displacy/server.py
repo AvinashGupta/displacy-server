@@ -91,15 +91,16 @@ def manual_endpoint():
 
 @app.route('/save', methods=['POST'])
 def save_endpoint():
+    if not request.json:
+        abort(400)
     parse = json.dumps(request.json)
-    key = abs(hash(parse))
+    key = str(abs(hash(parse)))
     current_app.keys[int(key)] = parse
     return jsonify({'key': key})
 
 
-@app.route('/load', methods=['GET'])
-def load_endpoint():
-    key = request.args.get('key')
+@app.route('/load/<key>', methods=['GET'])
+def load_endpoint(key):
     if not key:
         abort(400)
     parse = current_app.keys.get(int(key))
