@@ -1,6 +1,5 @@
 (function() {
-
-    var baseurl = 'https://displacy.spacy.io/displacy/';
+    var baseurl = hostname || '';
 
     var $ = new displaCy({
         api: api
@@ -89,7 +88,7 @@
 
     function loadFromShareLink(token, callback) {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', $.api + 'load/' + token, true);
+        xhr.open('GET', $.api + 'load?key=' + token, true);
         xhr.onload = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 callback(JSON.parse(xhr.responseText));
@@ -126,6 +125,8 @@
                 hideModal(this.parentElement.parentElement.id)
             });
         });
+
+        window.addEventListener('popstate', rewriteHistory);
     }
 
     function loading(status) {
@@ -141,6 +142,7 @@
     function onSuccess() {
         loading(false);
         displayVersionString($.versionString);
+        history.pushState({ request: $.request }, null, '');
     }
 
     function onFinal() {
@@ -150,6 +152,15 @@
     function onErrors() {
         loading(false);
         showModal('error');
+    }
+
+    function rewriteHistory(event) {
+        if(event.state && event.state.request) {
+            if(event.state.request.mode == 'manual') annotate(event.state.request);
+            else parse(event.state.request);
+
+            _get('input').value = event.state.request.text || '';
+        }
     }
 
     function displayToast(text) {
