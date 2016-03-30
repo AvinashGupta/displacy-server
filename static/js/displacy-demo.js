@@ -74,7 +74,7 @@
         xhr.setRequestHeader('Content-type', 'application/json');
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                callback(baseurl + '?share=' + JSON.parse(xhr.responseText).key);
+                callback(baseurl + '/?share=' + JSON.parse(xhr.responseText).key);
             }
         }
 
@@ -88,7 +88,7 @@
 
     function loadFromShareLink(token, callback) {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', $.api + 'load?key=' + token, true);
+        xhr.open('GET', $.api + 'load/' + token, true);
         xhr.onload = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 callback(JSON.parse(xhr.responseText));
