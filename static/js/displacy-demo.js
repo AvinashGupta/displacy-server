@@ -192,7 +192,7 @@
     }
 
     function playSound(sound) {
-        var file = new Audio('sounds/' + sound);
+        var file = new Audio('/demos/displacy/sounds/' + sound);
         file.play();
     }
 
