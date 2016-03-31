@@ -74,7 +74,7 @@
         xhr.setRequestHeader('Content-type', 'application/json');
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                callback(baseurl + '/?share=' + JSON.parse(xhr.responseText).key);
+                callback(baseurl + '?share=' + JSON.parse(xhr.responseText).key);
             }
         }
 
