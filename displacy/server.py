@@ -10,7 +10,7 @@ import newrelic.agent
 newrelic.agent.initialize('newrelic.ini',
     os.environ.get('ENVIRONMENT', 'development'))
 
-from flask import Flask, Response, request, jsonify, current_app, abort, render_template
+from flask import Flask, Response, request, jsonify, current_app, abort, render_template, redirect
 from flask_limiter import Limiter
 from flask.ext.cors import CORS
 
@@ -26,7 +26,6 @@ class Server(Flask):
 
         util.set_config(self, 'ENVIRONMENT', 'development')
         util.set_config(self, 'DEBUG', True)
-        util.set_config(self, 'API_URL', '/')
         util.set_config(self, 'HOSTNAME', False)
 
         util.set_config(self, 'AWS_ACCESS_KEY_ID', False)
@@ -115,6 +114,8 @@ def health():
 
 @app.route('/')
 def handle_root():
+    if current_app.config['ENVIRONMENT'] in ['production']:
+        return redirect('https://spacy.io/demos/displacy')
     return render_template('index.html',
         api_url='/',
-        hostname=current_app.config['HOSTNAME'] or '')
+        hostname=current_app.config['HOSTNAME'] or '%s' % request.host)
