@@ -12,6 +12,7 @@ newrelic.agent.initialize('newrelic.ini',
 
 from flask import Flask, Response, request, jsonify, current_app, abort, render_template, redirect
 from flask_limiter import Limiter
+from flask_limiter.util import get_ipaddr
 from flask.ext.cors import CORS
 
 from .handlers import handle_parse, handle_manual
@@ -59,7 +60,7 @@ class Server(Flask):
 app = newrelic.agent.WSGIApplicationWrapper(Server(
     __name__, static_url_path='/demos/displacy', static_folder='../static',
     template_folder='../static'))
-limiter = Limiter(app, headers_enabled=True, strategy='moving-window')
+limiter = Limiter(app, key_func=get_ipaddr, headers_enabled=True, strategy='moving-window')
 CORS(app)
 
 
@@ -109,6 +110,13 @@ def health():
         abort(503)  # log service not available
     return jsonify({
         'status': 'ok'
+    })
+
+
+@app.route('/config')
+def handle_config():
+    return jsonify({
+        'ip_addr': get_ipaddr()
     })
 
 
