@@ -123,7 +123,10 @@ def handle_config():
 @app.route('/')
 def handle_root():
     if current_app.config['ENVIRONMENT'] in ['production']:
-        return redirect('https://spacy.io/demos/displacy')
+        url = 'https://spacy.io/demos/displacy'
+        if request.query_string:
+            url += '?' + request.query_string.decode('utf8')
+        return redirect(url)
     return render_template('index.html',
         api_url='/',
         hostname=current_app.config['HOSTNAME'] or '%s' % request.host)
