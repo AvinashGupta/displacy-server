@@ -24,15 +24,15 @@ python application.py
 Read more
 ---------
 
-* [https://ines.io/blog/developing-displacy](Developing displacy), by @ines
+* [Developing displacy](https://ines.io/blog/developing-displacy), by [@ines](https://github.com/ines)
 
-* [http://spacy.io/blog/displacy-dependency-visualizer](Displaying linguistic structure) by @honnibal
+* [Displaying linguistic structure](http://spacy.io/blog/displacy-dependency-visualizer) by [@honnibal](https://github.com/honnibal)
 
 Authors
 -------
 
-* @ines: Front-end
+* [@ines](https://github.com/ines): Front-end
 
-* @honnibal: NLP logic
+* [@honnibal](https://github.com/honnibal): NLP logic
 
-* @henningpeters: Flask service
+* [@henningpeters](https://github.com/henningpeters): Flask service
