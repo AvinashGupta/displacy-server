@@ -1,5 +1,5 @@
-Displacy: Dependency parse visualizer
-=====================================
+Dependency Parse Tree Visualization with CSS & JavaScript
+=========================================================
 
 Displacy is a web application that allows you to visualise the output of
 a syntactic dependency parser. It was written for [https://spacy.io](spaCy), and
