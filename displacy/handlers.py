@@ -1,7 +1,8 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import spacy.en
+
+from spacy.en import English
 from spacy.attrs import ORTH, SPACY, TAG, POS, ENT_IOB, ENT_TYPE
 from spacy.parts_of_speech import NAMES as UNIV_POS_NAMES
 
