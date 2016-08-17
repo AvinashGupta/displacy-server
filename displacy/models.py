@@ -40,6 +40,7 @@ class Word(Model):
     def __init__(self, token, is_w_edit=False, is_t_edit=False, is_pushed=False,
                  is_popped=False):
         self.word = token.orth_
+        self.pos = token.pos_
         self.tag = token.pos_ if not token.ent_type_ else token.ent_type_
         self.is_entity = token.ent_iob in (1, 3)
         self.is_w_edit = is_w_edit
